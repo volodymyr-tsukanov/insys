@@ -19,7 +19,7 @@ class SerializeJson:
                 "nazwa_urzędu_JST": dep.get('nazwa_urzędu_JST', ''),
                 "miejscowość": dep.get('miejscowość', ''),
                 # check if both 'telefon' and 'numer_kierunkowy' exist
-                "telefon_z_numerem_kierunkowym": dep.get('telefon', '') + dep.get('numer_kierunkowy', '')
+                #"telefon_z_numerem_kierunkowym": dep.get('telefon', '') + dep.get('numer_kierunkowy', '')
             }
             lst.append(department)
 
