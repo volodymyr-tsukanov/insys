@@ -9,6 +9,7 @@ services:
     resource_limits:
       memory: 512m  # 512MB mem limit
       cpus: 0.5     # 50% CPU limit
+    depends_on: mysql
     command: tail -f /dev/null  # keeps alive
   mysql:
     image: docker.io/library/mysql:8.0-debian
