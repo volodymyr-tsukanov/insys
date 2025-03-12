@@ -1,5 +1,5 @@
 <?php
-$servername = "mysql";
+$servername = "localhost";
 $username = "sakila1";
 $password = "pass";
 $database = "sakila";
@@ -15,7 +15,7 @@ if ($conn->connect_error) {
 echo "Database connected successfully, username: " . $username . "<br><br>";
 
 // SQL query to update actor data, changing first_name 'ADAM' to 'CHRIS'
-$sql = "UPDATE actor SET last_name = 'EVANS' WHERE first_name = 'CHRIS'";
+$sql = "UPDATE actor SET last_name = 'EVANS' WHERE first_name = 'CHRIS' LIMIT 1";
 
 // Execute the query
 if ($conn->query($sql) === TRUE) {

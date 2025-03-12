@@ -1,5 +1,5 @@
 <?php
-$servername = "mysql";  //was localhost
+$servername = "localhost";  //for docker set to 'mysql'
 $username = "sakila1";
 $password = "pass";
 $database = "sakila";
