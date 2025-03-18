@@ -12,7 +12,7 @@ public class Main {
         EntityManager em = factory.createEntityManager();
         em.getTransaction().begin();
 
-        User u1 = new User("test_1","test_1","Andrzej","Kowalski");
+        User u1 = new User("test_1","test_1","Andrzej","Kowalski",Sex.MALE);
         em.persist(u1);
         em.getTransaction().commit();
         em.close();

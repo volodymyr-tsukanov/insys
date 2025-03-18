@@ -1,12 +1,10 @@
 package com.lg;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 
 @Entity
+@Table(name = "users", indexes = {@Index(name = "login_index", columnList = "login")})  // Add index on login column
 public class User {
 
     @Id
@@ -18,13 +16,17 @@ public class User {
     private String firstName;
     private String lastName;
 
+    @Enumerated(EnumType.STRING)
+    private Sex sex;
+
 
     public User() {}
-    public User(String login, String password, String firstName, String lastName) {
+    public User(String login, String password, String firstName, String lastName, Sex sex) {
         this.login = login;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.sex = sex;
     }
 
 
@@ -61,5 +63,12 @@ public class User {
     }
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Sex getSex() {
+        return sex;
+    }
+    public void setSex(Sex sex) {
+        this.sex = sex;
     }
 }
