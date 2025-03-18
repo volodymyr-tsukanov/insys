@@ -13,6 +13,9 @@ public class Main {
         em.getTransaction().begin();
 
         User u1 = new User("test_1","test_1","Andrzej","Kowalski",Sex.MALE);
+        Role r1 = new Role("tester.1");
+        u1.getRoles().add(r1);
+        em.persist(r1);
         em.persist(u1);
         em.getTransaction().commit();
         em.close();

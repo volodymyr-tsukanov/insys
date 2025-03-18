@@ -1,6 +1,8 @@
 package com.lg;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -18,6 +20,14 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Sex sex;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles",  // The join table name
+            joinColumns = @JoinColumn(name = "user_id"),  // Foreign key for User
+            inverseJoinColumns = @JoinColumn(name = "role_id")  // Foreign key for Role
+    )
+    private Set<Role> roles = new HashSet<>();
 
 
     public User() {}
@@ -70,5 +80,9 @@ public class User {
     }
     public void setSex(Sex sex) {
         this.sex = sex;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
     }
 }
