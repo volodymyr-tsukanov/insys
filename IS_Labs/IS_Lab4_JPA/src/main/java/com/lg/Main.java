@@ -17,12 +17,11 @@ public class Main {
 
         try {
             initUsersRoles(em);
-
             updateUserPassword(em);
-
             deleteRole(em);
-
             findUsersByLastName(em);
+
+            //z44(em);
 
         } finally {
             em.close();
@@ -144,5 +143,39 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    static void z44(EntityManager em){
+        // Begin transaction
+        em.getTransaction().begin();
+
+        // Create roles
+        Role adminRole = new Role("ADMIN");
+        Role userRole = new Role("USER");
+
+        em.persist(adminRole);
+        em.persist(userRole);
+
+        // Create users and assign roles
+        User user1 = new User("johndoe", "password123", "John", "Doe", Sex.MALE);
+        user1.addRole(adminRole);
+        user1.addRole(userRole);
+
+        em.persist(user1);
+
+        // Create users groups
+        UsersGroup devGroup = new UsersGroup("Developers");
+        UsersGroup hrGroup = new UsersGroup("HR");
+
+        em.persist(devGroup);
+        em.persist(hrGroup);
+
+        // Add user1 to groups
+        user1.addGroup(devGroup);
+        user1.addGroup(hrGroup);
+
+        em.persist(user1);
+
+        em.getTransaction().commit();
+        System.out.println("Users, roles, and groups persisted successfully.");
     }
 }

@@ -6,24 +6,21 @@ import java.util.Set;
 
 
 @Entity
-@Table(name = "roles")  // Table name is "roles"
-public class Role {
+public class UsersGroup {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+    private String groupName;
 
-    // Many-to-many relationship with User
-    /*@ManyToMany(mappedBy = "roles")
-    private Set<User> users = new HashSet<>();*/
+    @ManyToMany(mappedBy = "groups")
+    private Set<User> users = new HashSet<>();
 
 
-    public Role() {}
-    public Role(String name) {
-        this.name = name;
+    public UsersGroup() {}
+    public UsersGroup(String groupName) {
+        this.groupName = groupName;
     }
 
 
@@ -34,11 +31,11 @@ public class Role {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getGroupName() {
+        return groupName;
     }
-    public void setName(String name) {
-        this.name = name;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     public Set<User> getUsers() {
@@ -46,5 +43,8 @@ public class Role {
     }
     public void setUsers(Set<User> users) {
         this.users = users;
+    }
+    public void addUser(User user) {
+        this.users.add(user);
     }
 }

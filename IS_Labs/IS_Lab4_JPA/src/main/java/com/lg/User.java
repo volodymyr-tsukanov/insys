@@ -1,7 +1,9 @@
 package com.lg;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -21,16 +23,23 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Sex sex;
 
+    // One-to-many relationship with Role
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private final List<Role> roles = new ArrayList<>();
+
+    // Many-to-many relationship with UsersGroup
     @ManyToMany
     @JoinTable(
-            name = "user_roles",  // The join table name
-            joinColumns = @JoinColumn(name = "user_id"),  // Foreign key for User
-            inverseJoinColumns = @JoinColumn(name = "role_id")  // Foreign key for Role
+            name = "user_groups",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
     )
-    private Set<Role> roles = new HashSet<>();
+    private final Set<UsersGroup> groups = new HashSet<>();
 
-
+    // Default constructor
     public User() {}
+
+    // Constructor with fields
     public User(String login, String password, String firstName, String lastName, Sex sex) {
         this.login = login;
         this.password = password;
@@ -39,7 +48,7 @@ public class User {
         this.sex = sex;
     }
 
-
+    // Getter and setter methods
     public Long getId() {
         return id;
     }
@@ -82,7 +91,27 @@ public class User {
         this.sex = sex;
     }
 
-    public Set<Role> getRoles() {
+    public List<Role> getRoles() {
         return roles;
+    }
+    public void setRoles(List<Role> roles) {
+        this.roles.clear();
+        this.roles.addAll(roles);
+    }
+
+    // Method to add a role to the user
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+    public Set<UsersGroup> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<UsersGroup> groups) {
+        this.groups.clear();
+        this.groups.addAll(groups);
+    }
+    public void addGroup(UsersGroup group) {
+        this.groups.add(group);
     }
 }
