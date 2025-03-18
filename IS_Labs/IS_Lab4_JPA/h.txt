@@ -1,0 +1,1015 @@
+# 1
+- persistence.xml
+```xml
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+                                 http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
+
+    <persistence-unit name="Hibernate_JPA" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <properties>
+            <property name="javax.persistence.jdbc.driver"
+                      value="com.mysql.cj.jdbc.Driver" />
+            <property name="javax.persistence.jdbc.url"
+                      value="jdbc:mysql://localhost:3306/jpa?useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC&amp;useSSL=false" />
+            <property name="javax.persistence.jdbc.user"
+                      value="root" />
+            <property name="javax.persistence.jdbc.password"
+                      value="" />
+            <property name="hibernate.dialect"
+                      value="org.hibernate.dialect.MySQL5Dialect" />
+            <property name="hibernate.hbm2ddl.auto"
+                      value="create" />
+        </properties>
+    </persistence-unit>
+
+</persistence>
+```
+
+- pom.xml
+```xml
+<dependencies>
+    <!-- MySQL Connector/J -->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.29</version> <!-- Use the latest stable version -->
+    </dependency>
+
+    <!-- Hibernate Core -->
+    <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>5.6.10.Final</version> <!-- Use the latest stable version -->
+    </dependency>
+</dependencies>
+```
+
+
+
+# 2
+- User class v1
+```java
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String login;
+    private String password;
+    private String firstName;
+    private String lastName;
+
+    // Default constructor
+    public User() {}
+
+    // Constructor with all fields
+    public User(String login, String password, String firstName, String lastName) {
+        this.login = login;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+}
+```
+
+- main
+```java
+System.out.println("JPA project");
+EntityManagerFactory factory =
+Persistence.createEntityManagerFactory("Hibernate_JPA");
+EntityManager em = factory.createEntityManager();
+em.getTransaction().begin();
+User u1 = new User(null, "test_1","test_1","Andrzej",
+"Kowalski");
+em.persist(u1);
+em.getTransaction().commit();
+em.close();
+factory.close();
+```
+
+- Sex enum
+```java
+public enum Sex {
+    MALE,
+    FEMALE
+}
+```
+
+- User class v2
+```java
+import javax.persistence.*;
+
+@Entity
+@Table(name = "users", indexes = {@Index(name = "login_index", columnList = "login")})  // Add index on login column
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)  // Ensuring login is unique and not null
+    private String login;
+
+    @Column(nullable = false)  // Ensuring password is not null
+    private String password;
+
+    @Column(nullable = false)  // Ensuring first name is not null
+    private String firstName;
+
+    @Column(nullable = false)  // Ensuring last name is not null
+    private String lastName;
+
+    @Enumerated(EnumType.STRING)  // Store gender as a string in the database
+    private Sex sex;
+
+    // Default constructor
+    public User() {}
+
+    // Constructor with all fields
+    public User(String login, String password, String firstName, String lastName, Sex sex) {
+        this.login = login;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.sex = sex;
+    }
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public Sex getSex() {
+        return sex;
+    }
+
+    public void setSex(Sex sex) {
+        this.sex = sex;
+    }
+}
+```
+
+- Role class
+```java
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
+@Table(name = "roles")  // Table name is "roles"
+public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String name;
+
+    // Many-to-many relationship with User
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users = new HashSet<>();
+
+    // Default constructor
+    public Role() {}
+
+    // Constructor with all fields
+    public Role(String name) {
+        this.name = name;
+    }
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
+}
+```
+User class changes
+```java
+// Many-to-many relationship with Role
+@ManyToMany
+@JoinTable(
+    name = "user_roles",  // The join table name
+    joinColumns = @JoinColumn(name = "user_id"),  // Foreign key for User
+    inverseJoinColumns = @JoinColumn(name = "role_id")  // Foreign key for Role
+)
+private Set<Role> roles = new HashSet<>();
+
+// Getter and Setter for roles
+public Set<Role> getRoles() {
+    return roles;
+}
+
+public void setRoles(Set<Role> roles) {
+    this.roles = roles;
+}
+```
+
+
+
+# 3
+To solve the task, we need to use the `EntityManager` to manage the persistence context, handle CRUD operations, and perform JPQL queries on the database. Below is the solution, broken down into the specified parts:
+
+### **1. Persist 5 Users and 5 Roles with `EntityManager`:**
+
+We will create 5 `User` and 5 `Role` objects, and persist them to the database using the `EntityManager`.
+
+```java
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+
+public class PersistenceExample {
+
+    public static void main(String[] args) {
+        // Create EntityManager and EntityTransaction
+        EntityManager em = EntityManagerFactoryProvider.getEntityManagerFactory().createEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            // Begin transaction
+            transaction.begin();
+
+            // Create and persist Roles
+            Role adminRole = new Role("ADMIN");
+            Role userRole = new Role("USER");
+            Role managerRole = new Role("MANAGER");
+            Role guestRole = new Role("GUEST");
+            Role moderatorRole = new Role("MODERATOR");
+
+            em.persist(adminRole);
+            em.persist(userRole);
+            em.persist(managerRole);
+            em.persist(guestRole);
+            em.persist(moderatorRole);
+
+            // Create and persist Users
+            User user1 = new User("johndoe", "password123", "John", "Doe", Sex.MALE);
+            user1.getRoles().add(adminRole);  // Assigning roles to user
+            user1.getRoles().add(userRole);
+
+            User user2 = new User("janedoe", "password456", "Jane", "Doe", Sex.FEMALE);
+            user2.getRoles().add(userRole);
+
+            User user3 = new User("michaelsmith", "password789", "Michael", "Smith", Sex.MALE);
+            user3.getRoles().add(managerRole);
+
+            User user4 = new User("maryjane", "password321", "Mary", "Jane", Sex.FEMALE);
+            user4.getRoles().add(guestRole);
+
+            User user5 = new User("tomjones", "password654", "Tom", "Jones", Sex.MALE);
+            user5.getRoles().add(moderatorRole);
+
+            // Persisting users
+            em.persist(user1);
+            em.persist(user2);
+            em.persist(user3);
+            em.persist(user4);
+            em.persist(user5);
+
+            // Commit transaction
+            transaction.commit();
+            System.out.println("Users and roles have been persisted successfully.");
+
+        } catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
+    }
+}
+```
+
+### Explanation:
+- **Roles and Users** are created and then persisted using `em.persist()`.
+- The **Roles** are assigned to **Users** via the `getRoles().add()` method.
+- The **transaction** is committed to persist the objects.
+
+### **2. Update a User's Password with `merge`:**
+
+Next, we will retrieve the user with `id = 1`, modify their password, and then use `merge` to persist the updated entity.
+
+```java
+public void updateUserPassword(EntityManager em) {
+    try {
+        // Begin transaction
+        EntityTransaction transaction = em.getTransaction();
+        transaction.begin();
+
+        // Find the User with id = 1
+        User user = em.find(User.class, 1L);
+
+        if (user != null) {
+            // Update the user's password
+            user.setPassword("newPassword123");
+
+            // Merge the updated user back into the persistence context
+            em.merge(user);
+
+            System.out.println("User's password updated successfully.");
+        } else {
+            System.out.println("User with id 1 not found.");
+        }
+
+        // Commit transaction
+        transaction.commit();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+```
+
+### Explanation:
+- We use **`em.find()`** to retrieve the `User` with `id = 1`.
+- The **`merge()`** method is called to update the entity in the persistence context.
+- After updating, the transaction is committed.
+
+### **3. Delete a Role with `id = 5`:**
+
+Now, we will find and delete the `Role` with `id = 5`.
+
+```java
+public void deleteRole(EntityManager em) {
+    try {
+        // Begin transaction
+        EntityTransaction transaction = em.getTransaction();
+        transaction.begin();
+
+        // Find the Role with id = 5
+        Role role = em.find(Role.class, 5L);
+
+        if (role != null) {
+            // Remove the role from the database
+            em.remove(role);
+
+            System.out.println("Role with id 5 deleted successfully.");
+        } else {
+            System.out.println("Role with id 5 not found.");
+        }
+
+        // Commit transaction
+        transaction.commit();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+```
+
+### Explanation:
+- We use **`em.find()`** to get the `Role` with `id = 5`.
+- The **`em.remove()`** method is used to delete the role from the database.
+- The transaction is then committed.
+
+### **4. Execute a JPQL Query to Retrieve Users with Last Name "Kowalski":**
+
+Here is an example of how to use JPQL to retrieve users with the last name "Kowalski":
+
+```java
+public void findUsersByLastName(EntityManager em) {
+    try {
+        // Create the JPQL query
+        String jpql = "SELECT u FROM User u WHERE u.lastName = :lastName";
+        List<User> users = em.createQuery(jpql, User.class)
+                .setParameter("lastName", "Kowalski")
+                .getResultList();
+
+        // Display the results
+        System.out.println("Users with last name 'Kowalski':");
+        for (User user : users) {
+            System.out.println(user.getFirstName() + " " + user.getLastName());
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+```
+
+### Explanation:
+- We use **JPQL** to select `User` objects where the `lastName` is "Kowalski".
+- **`setParameter("lastName", "Kowalski")`** binds the parameter in the query.
+- **`getResultList()`** executes the query and returns a list of `User` objects matching the condition.
+
+### Final Integration:
+
+You can call these methods from your `main()` method or another class where the `EntityManager` is set up.
+
+```java
+public class Main {
+
+    public static void main(String[] args) {
+        EntityManager em = EntityManagerFactoryProvider.getEntityManagerFactory().createEntityManager();
+
+        try {
+            // Persist Users and Roles
+            PersistenceExample.persistUsersAndRoles(em);
+
+            // Update User's password
+            PersistenceExample.updateUserPassword(em);
+
+            // Delete Role with id 5
+            PersistenceExample.deleteRole(em);
+
+            // Find Users with last name "Kowalski"
+            PersistenceExample.findUsersByLastName(em);
+
+        } finally {
+            em.close();
+        }
+    }
+}
+```
+
+### Explanation:
+- The methods for persisting users and roles, updating a user's password, deleting a role, and retrieving users with the last name "Kowalski" are called in sequence.
+- **`EntityManagerFactoryProvider.getEntityManagerFactory()`** should provide a properly configured `EntityManagerFactory`.
+
+### Summary of Operations:
+1. **Persist 5 Users and 5 Roles**: We created and persisted 5 users and 5 roles using `EntityManager`.
+2. **Update User's Password**: We retrieved a `User` by `id` and updated their password using `merge()`.
+3. **Delete a Role**: We deleted a `Role` by `id` using `remove()`.
+4. **JPQL Query**: We queried the `User` entities by last name using JPQL.
+
+
+
+# 4
+- User class v3
+```java
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String login;
+    private String password;
+    private String firstName;
+    private String lastName;
+
+    @Enumerated(EnumType.STRING)
+    private Sex sex;
+
+    // One-to-many relationship with Role
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private final List<Role> roles = new ArrayList<>();
+
+    // Many-to-many relationship with UsersGroup
+    @ManyToMany
+    @JoinTable(
+        name = "user_groups",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private final Set<UsersGroup> groups = new HashSet<>();
+
+    // Default constructor
+    public User() {}
+
+    // Constructor with fields
+    public User(String login, String password, String firstName, String lastName, Sex sex) {
+        this.login = login;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.sex = sex;
+    }
+
+    // Getter and setter methods
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public Sex getSex() {
+        return sex;
+    }
+
+    public void setSex(Sex sex) {
+        this.sex = sex;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles.clear();
+        this.roles.addAll(roles);
+    }
+
+    // Method to add a role to the user
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+
+    public Set<UsersGroup> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<UsersGroup> groups) {
+        this.groups.clear();
+        this.groups.addAll(groups);
+    }
+
+    // Method to add a user group
+    public void addGroup(UsersGroup group) {
+        this.groups.add(group);
+    }
+}
+```
+
+- Role class v2
+```java
+import javax.persistence.*;
+
+@Entity
+public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    // Default constructor
+    public Role() {}
+
+    // Constructor with name
+    public Role(String name) {
+        this.name = name;
+    }
+
+    // Getter and setter methods
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+```
+
+- UsersGroup class
+```java
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
+public class UsersGroup {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String groupName;
+
+    // Many-to-many relationship with User
+    @ManyToMany(mappedBy = "groups")
+    private Set<User> users = new HashSet<>();
+
+    // Default constructor
+    public UsersGroup() {}
+
+    // Constructor with name
+    public UsersGroup(String groupName) {
+        this.groupName = groupName;
+    }
+
+    // Getter and setter methods
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
+
+    // Method to add a user to the group
+    public void addUser(User user) {
+        this.users.add(user);
+    }
+}
+```
+
+- main v3
+```java
+EntityManager em = EntityManagerFactoryProvider.getEntityManagerFactory().createEntityManager();
+EntityTransaction transaction = em.getTransaction();
+
+try {
+    // Begin transaction
+    transaction.begin();
+
+    // Create roles
+    Role adminRole = new Role("ADMIN");
+    Role userRole = new Role("USER");
+
+    em.persist(adminRole);
+    em.persist(userRole);
+
+    // Create users and assign roles
+    User user1 = new User("johndoe", "password123", "John", "Doe", Sex.MALE);
+    user1.addRole(adminRole);
+    user1.addRole(userRole);
+
+    em.persist(user1);
+
+    // Create users groups
+    UsersGroup devGroup = new UsersGroup("Developers");
+    UsersGroup hrGroup = new UsersGroup("HR");
+
+    em.persist(devGroup);
+    em.persist(hrGroup);
+
+    // Add user1 to groups
+    user1.addGroup(devGroup);
+    user1.addGroup(hrGroup);
+
+    em.persist(user1);
+
+    // Commit transaction
+    transaction.commit();
+
+    System.out.println("Users, roles, and groups persisted successfully.");
+
+} catch (Exception e) {
+    if (transaction.isActive()) {
+        transaction.rollback();
+    }
+    e.printStackTrace();
+} finally {
+    em.close();
+}
+```
+
+
+
+# 5
+- User class v4
+```java
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String login;
+    private String password;
+    private String firstName;
+    private String lastName;
+
+    @Enumerated(EnumType.STRING)
+    private Sex sex;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private final List<Role> roles = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "user_groups",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private final Set<UsersGroup> groups = new HashSet<>();
+
+    // Field for storing the user's image as a byte array
+    @Lob
+    private byte[] image;
+
+    // Default constructor
+    public User() {}
+
+    // Constructor with fields
+    public User(String login, String password, String firstName, String lastName, Sex sex) {
+        this.login = login;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.sex = sex;
+    }
+
+    // Getter and setter methods
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public Sex getSex() {
+        return sex;
+    }
+
+    public void setSex(Sex sex) {
+        this.sex = sex;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles.clear();
+        this.roles.addAll(roles);
+    }
+
+    public Set<UsersGroup> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<UsersGroup> groups) {
+        this.groups.clear();
+        this.groups.addAll(groups);
+    }
+
+    // Method to add a role to the user
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+
+    // Method to add a user group
+    public void addGroup(UsersGroup group) {
+        this.groups.add(group);
+    }
+
+    // Getter and setter for the image field
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
+
+    // Method to load an image file into a byte array
+    public static byte[] loadImageToByteArray(String imagePath) throws IOException {
+        File imageFile = new File(imagePath);
+        byte[] imageBytes = new byte[(int) imageFile.length()];
+        try (FileInputStream fis = new FileInputStream(imageFile)) {
+            fis.read(imageBytes);
+        }
+        return imageBytes;
+    }
+}
+```
+
+- main v4
+```java
+EntityManager em = EntityManagerFactoryProvider.getEntityManagerFactory().createEntityManager();
+EntityTransaction transaction = em.getTransaction();
+
+try {
+    // Begin transaction
+    transaction.begin();
+
+    // Create a new user
+    User user = new User("janedoe", "password123", "Jane", "Doe", Sex.FEMALE);
+
+    // Load an image file as byte array and set it to the user
+    byte[] imageBytes = User.loadImageToByteArray("path_to_image.jpg");
+    user.setImage(imageBytes);
+
+    // Persist the user (with the image) in the database
+    em.persist(user);
+
+    // Commit transaction
+    transaction.commit();
+
+    System.out.println("User with image persisted successfully.");
+
+} catch (IOException e) {
+    e.printStackTrace();
+} catch (Exception e) {
+    if (transaction.isActive()) {
+        transaction.rollback();
+    }
+    e.printStackTrace();
+} finally {
+    em.close();
+}
+```
