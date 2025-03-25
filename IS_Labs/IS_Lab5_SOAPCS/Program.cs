@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IS_Lab5_SOAPCS.ServiceReference1;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,9 +10,14 @@ namespace IS_Lab5_SOAPCS
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Console.WriteLine("1");
+            Console.WriteLine("My First SOAP Client!");
+            MyFirstSOAPInterfaceClient client = new
+            MyFirstSOAPInterfaceClient();
+            string text = await
+            client.getHelloWorldAsStringAsync("Volodymyr");
+            Console.WriteLine(text);
             Console.ReadLine();
         }
     }
