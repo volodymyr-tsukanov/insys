@@ -4,7 +4,7 @@ class Database {
     private $host = 'localhost';
     private $user = 'root';
     private $password = "";
-    private $database = "nazwa_bazy";
+    private $database = "world";
 
     // Method to establish a connection to the database
     public function getConnection() {
