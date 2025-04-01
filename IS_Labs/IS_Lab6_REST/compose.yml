@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  mysql:
+    image: docker.io/mysql:8.0-debian
+    container_name: insys-mysql_cnt
+    environment:
+      - MYSQL_ROOT_PASSWORD=rot
+    ports:
+      - "127.0.0.1:3310:3306"
+    volumes:
+      - insys-mysql_vol:/var/lib/mysql
+    resource_limits:
+      memory: 256m
+      cpus: 0.3
+
+volumes:
+  insys-mysql_vol:
+    driver: local
