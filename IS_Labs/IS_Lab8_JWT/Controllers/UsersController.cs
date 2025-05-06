@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using IS_Lab8_JWT.Models;
 using IS_Lab8_JWT.Services.Users;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace IS_Lab8_JWT.Controllers
 {
@@ -19,8 +21,7 @@ namespace IS_Lab8_JWT.Controllers
             this.userService = userService;
         }
         [HttpPost("authenticate")]
-        public IActionResult
-       Authenticate(AuthenticationRequest request)
+        public IActionResult Authenticate(AuthenticationRequest request)
         {
             var response = userService.Authenticate(request);
             if (response == null)
@@ -29,6 +30,13 @@ namespace IS_Lab8_JWT.Controllers
                     message = "Username or password is incorrect"
                 });
             return Ok(response);
+        }
+
+        [HttpGet("getall")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult GetAll()
+        {
+            return Ok(userService.GetUsers());
         }
     }
 }

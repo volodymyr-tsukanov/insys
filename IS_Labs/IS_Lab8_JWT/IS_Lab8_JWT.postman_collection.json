@@ -34,6 +34,37 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "getAll",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZTEyMyIsImp0aSI6ImVkNjQ5NWMwLTQxOWQtNGY2MC04MjVkLTcyOGIwZmY3YWQyZiIsImVtYWlsIjoidXNlcm5hbWUxMjMiLCJleHAiOjE3MzEwNTc0MTMsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTAwMCJ9.H8Zrv7WJUHhpuiCWbR-pBWO8zKmra1AoXKAWrarhmRo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5252/api/users/getall",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5252",
+					"path": [
+						"api",
+						"users",
+						"getall"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
