@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IS_Lab1_XML", "IS_Lab1_XML\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IS_Lab5_SOAPCS", "IS_Lab5_SOAPCS\IS_Lab5_SOAPCS.csproj", "{FAC422FE-5B5C-4097-8676-D7825A7AD6DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IS_Lab8_JWT", "IS_Lab8_JWT\IS_Lab8_JWT.csproj", "{49B134F1-5A5E-4B5A-BF6E-3DE42CF858CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FAC422FE-5B5C-4097-8676-D7825A7AD6DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAC422FE-5B5C-4097-8676-D7825A7AD6DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAC422FE-5B5C-4097-8676-D7825A7AD6DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49B134F1-5A5E-4B5A-BF6E-3DE42CF858CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49B134F1-5A5E-4B5A-BF6E-3DE42CF858CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49B134F1-5A5E-4B5A-BF6E-3DE42CF858CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49B134F1-5A5E-4B5A-BF6E-3DE42CF858CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
