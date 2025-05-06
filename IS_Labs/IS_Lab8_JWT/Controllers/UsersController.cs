@@ -33,10 +33,17 @@ namespace IS_Lab8_JWT.Controllers
         }
 
         [HttpGet("getall")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Roles = "admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult GetAll()
         {
             return Ok(userService.GetUsers());
+        }
+
+        [HttpGet("getcount")]
+        [Authorize(Roles = "user", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult GetUserCount()
+        {
+            return Ok(userService.GetUsers().ToList().Count);
         }
     }
 }

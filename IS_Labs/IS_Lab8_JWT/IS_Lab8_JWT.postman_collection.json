@@ -6,13 +6,43 @@
 	},
 	"item": [
 		{
-			"name": "userAuth",
+			"name": "adminAuth",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"username\": \"Andrzej\",\r\n    \"password\": \"Andrzej\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5252/api/users/authenticate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5252",
+					"path": [
+						"api",
+						"users",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "userAuth",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"Ania\",\r\n    \"password\": \"Ania\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -43,7 +73,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZTEyMyIsImp0aSI6ImVkNjQ5NWMwLTQxOWQtNGY2MC04MjVkLTcyOGIwZmY3YWQyZiIsImVtYWlsIjoidXNlcm5hbWUxMjMiLCJleHAiOjE3MzEwNTc0MTMsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTAwMCJ9.H8Zrv7WJUHhpuiCWbR-pBWO8zKmra1AoXKAWrarhmRo",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJyb2xlIjpbImFkbWluIiwidXNlciJdLCJuYmYiOjE3NDY1NTE2NjAsImV4cCI6MTc0NjU1NTI2MCwiaWF0IjoxNzQ2NTUxNjYwfQ.JVXbdFzkbsYDAUPmranCgueQzRKwXnsunfJIlegJLhU",
 							"type": "string"
 						}
 					]
@@ -61,6 +91,37 @@
 						"api",
 						"users",
 						"getall"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getCount",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJyb2xlIjpbImFkbWluIiwidXNlciJdLCJuYmYiOjE3NDY1NTE2NjAsImV4cCI6MTc0NjU1NTI2MCwiaWF0IjoxNzQ2NTUxNjYwfQ.JVXbdFzkbsYDAUPmranCgueQzRKwXnsunfJIlegJLhU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5252/api/users/getcount",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5252",
+					"path": [
+						"api",
+						"users",
+						"getcount"
 					]
 				}
 			},
