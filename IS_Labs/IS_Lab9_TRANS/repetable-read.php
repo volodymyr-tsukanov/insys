@@ -17,8 +17,8 @@ echo "Databse connected successfully, username " .
     $username . "<br><br>";
 // Do not change the default isolation level REPEATABLE READ
 // Start transaction
-//$conn->begin_transaction();
-//echo "SLA: Repeatable Read<br>";
+$conn->begin_transaction();
+echo "SLA: Repeatable Read<br>";
 
 echo "Before sleep<br>";
 $sql = "SELECT actor_id, first_name, last_name FROM actor
@@ -54,5 +54,5 @@ if ($result->num_rows > 0) {
     echo "0 results<br>";
 }
 //End transaction
-//$conn->commit();
+$conn->commit();
 $conn->close();
