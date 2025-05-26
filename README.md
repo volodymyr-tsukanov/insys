@@ -1,12 +1,16 @@
 # insys
 Systems integration <br>
 
-**C#**; **Python**; **VisualStudio 22**
+**C#**, **VisualStudio 22**; **Java**; **php**; **Python**
+<br><br>
 
 
-Shields: [![MIT License][mit-shield]][mit]
+Shields: [![AGPL-3.0][agpl3-shield]][agpl3]
 
-[mit]: https://opensource.org/licenses/MIT
-[mit-shield]: https://img.shields.io/badge/License-MIT-lightgrey.svg
+[agpl3]: https://www.gnu.org/licenses/agpl-3.0.html
+[agpl3-shield]: https://img.shields.io/badge/License-AGPL%20v3-purple.svg
 
-<a rel="license" href="https://opensource.org/licenses/MIT"><img alt="MIT License" height=47px style="border-width:0" src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/i/7195e121-eded-45cf-9aab-909deebd81b2/d9ur2lg-28410b47-58fd-4a48-9b67-49c0f56c68ce.png/v1/fill/w_1035,h_772,q_70,strp/mit_license_logo_by_excaliburzero_d9ur2lg-pre.jpg" /></a><br>This work is licensed under the <a rel="license" href="https://opensource.org/licenses/MIT">MIT License</a>.
+<a rel="license" href="https://www.gnu.org/licenses/agpl-3.0.html">
+  <img alt="GNU Affero General Public License" height=47px style="border-width:0" src="https://www.gnu.org/graphics/agplv3-155x51.png" />
+</a><br>
+This work is licensed under the <a rel="license" href="https://www.gnu.org/licenses/agpl-3.0.html">GNU Affero General Public License v3.0</a>.
