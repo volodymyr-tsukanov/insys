@@ -1,0 +1,19 @@
+# Copyright (C) 2025  volodymyr-tsukanov  insys
+# for the full copyright notice see the LICENSE file in the root of repository
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: df/nj_df
+    image: localhost/simple-nodejs:alpha
+    container_name: insys-nj-app_cnt
+    volumes:
+      - .:/home/app
+    ports:
+      - "127.0.0.1:3003:3003"
+    resource_limits:
+      memory: 512m  # 512MB mem limit
+      cpus: 0.5     # 50% CPU limit
