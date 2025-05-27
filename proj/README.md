@@ -1,4 +1,4 @@
-# Setup
+# Setup (how that was done)
 ```bash
 cd proj
 podman run -it --rm --name nj --volume .:/home/app localhost/simple-nodejs:alpha ash
