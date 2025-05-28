@@ -5,6 +5,11 @@
 import { EDatasetType, IDataset } from "./consts"
 
 
+export interface IFetchOptions {
+  method: 'GET' | 'POST';
+  cache: 'no-cache' | 'force-cache' | 'no-store';
+};
+
 export class FetchError extends Error {
   static CAUSE = 'ECFetch';
   name: string;
@@ -15,7 +20,7 @@ export class FetchError extends Error {
 }
 
 
-async function fetchRequest(url: string, options?: { method: 'GET' | 'POST', cache: 'no-cache' | 'force-cache' | 'no-store' }): Promise<Response> {
+async function fetchRequest(url: string, options?: IFetchOptions): Promise<Response> {
   const method = options?.method ?? 'GET';
   const response = await fetch(url, { method: method, cache: options?.cache ?? 'no-cache' });
   if (!response.ok) throw new FetchError(`failed ${method} from ${url} with status ${response.status}`);
@@ -23,17 +28,17 @@ async function fetchRequest(url: string, options?: { method: 'GET' | 'POST', cac
 }
 
 /** 
- * **Main Dataset**(D1) from https://dane.gov.pl/ \
- * useful headers: **last-modified** | **etag** ("1665564760.04-429")
+ * comply with urls from **CMainDataset** \
+ * useful headers: **etag** ("1665564760.04-429")
  */
-export async function fetchD1Csv(): Promise<IDataset> {
-  const resp = await fetchRequest('https://otwartedane.lublin.eu/dataset/6f9a08f3-6d5c-4542-b80d-1aeb403d5243/resource/201c3188-e03a-4dee-83ab-dece8d532cfa/download/program-rewitalizacji-dla-lublina-na-lata-20172023.csv');
+export async function fetchMainDataset(url: string, options?: IFetchOptions): Promise<IDataset> {
+  const resp = await fetchRequest(url, options);
   const respBlob = await resp.blob();
-  if (respBlob.type != EDatasetType.csv)
-    throw new FetchError(`fetchD1 is! CSV (${respBlob.type})`);
+  if (!respBlob.type.startsWith(EDatasetType.csv))
+    throw new FetchError(`fetchMD is! CSV (${respBlob.type})`);
   const textCsv = await respBlob.text();
   if (!textCsv || textCsv.length < 3)
-    throw new FetchError(`fetchD1 CSV is too small (${textCsv})`);
+    throw new FetchError(`fetchMD CSV is too small (${textCsv})`);
   const modifiedDate = resp.headers.get("last-modified");
   const etag = resp.headers.get("etag");
   return {
@@ -41,6 +46,30 @@ export async function fetchD1Csv(): Promise<IDataset> {
     data: textCsv,
     fetchDate: new Date(resp.headers.get("date")!),
     modifiedDate: modifiedDate ? new Date(modifiedDate) : undefined,
-    etag: etag ? etag : undefined
+    tag: etag ? etag : undefined
+  };
+}
+
+/** 
+ * comply with urls from **COddDataset** \
+ */
+export async function fetchOddDataset(url: string, options?: IFetchOptions): Promise<IDataset> {
+  const resp = await fetchRequest(url, options);
+  const respBlob = await resp.blob();
+  let respType: EDatasetType;
+  if (respBlob.type.startsWith(EDatasetType.json)) respType = EDatasetType.json;
+  else if (respBlob.type.startsWith(EDatasetType.xml)) respType = EDatasetType.xml;
+  else if (respBlob.type.startsWith(EDatasetType.csv)) respType = EDatasetType.csv;
+  else throw new FetchError(`fetchOD unknown odd dataset type ${respBlob.type}`);
+  const textCsv = await respBlob.text();
+  if (!textCsv || textCsv.length < 2)
+    throw new FetchError(`fetchOD data is too small (${textCsv})`);
+  const modifiedDate = resp.headers.get("last-modified");
+  console.log(resp.headers);
+  return {
+    contentType: EDatasetType.csv,
+    data: textCsv,
+    fetchDate: new Date(resp.headers.get("date")!),
+    modifiedDate: modifiedDate ? new Date(modifiedDate) : undefined,
   };
 }
