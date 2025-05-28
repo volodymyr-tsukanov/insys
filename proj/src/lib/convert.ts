@@ -35,19 +35,21 @@ function findCsvSeparator(headRow: string): CSVHeader {
   return { separator: separator, columnNames: columnNames };
 }
 function parseCsvRow(row: string, header: CSVHeader, jsonObj: any) {
+  if (row.length < header.columnNames.length) return;
   const columns = splitCsvRow(row, header.separator);
   if (columns.length !== header.columnNames.length)
     throw SyntaxError(`${NAMESPACE}::csv row structure differs from header`);
   const [key, ...values] = columns;
   let i = 1;
   jsonObj[key] = {};
-  for(const value of values){
+  for (const value of values) {
     jsonObj[key][header.columnNames[i++]] = value;
   }
 }
 export function csv2json(csvString: string): any {
   const jsonObj: any = {};
-  const rows = csvString.split('\n');
+  const rows = csvString.split(/\r\n|\r|\n/);
+  console.log(rows);
   try {
     const header = findCsvSeparator(rows[0]);
     const innerObj = {};
