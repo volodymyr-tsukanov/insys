@@ -15,5 +15,6 @@ RUN ash /vtools/autoclean.sh
 
 RUN mkdir /home/app
 WORKDIR /home/app
+RUN sed -i 's/\r$//' /vtools/entrypoint.sh
 
 CMD ["/bin/ash", "/vtools/entrypoint.sh"]

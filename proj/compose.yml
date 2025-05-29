@@ -14,6 +14,4 @@ services:
       - .:/home/app
     ports:
       - "127.0.0.1:3004:3004"
-    resource_limits:
-      memory: 512m  # 512MB mem limit
-      cpus: 0.5     # 50% CPU limit
+ 
