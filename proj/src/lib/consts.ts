@@ -13,10 +13,32 @@ export enum EDatasetType {
 
 export interface IDataset {
   contentType: EDatasetType;
+  /** real thing */
   data: string;
   fetchDate: Date;
   modifiedDate?: Date;
   tag?: string;
+};
+// Main Datasets
+export interface IDatasetRevitalization {
+  plannedProjects: Record<string, number>;
+  completedProjects: Record<string, number>;
+  renovatedFlats: Record<string, number>;
+  /** in mln zl */
+  renovationCostMln: Record<string, number>;
+};
+export interface IDatasetTourism {
+  totalVisitors: Record<string, number>;
+  tourists: Record<string, number>;
+  infoCenterVisitors: Record<string, number>;
+  foreignTourists: Record<string, number>;
+  tourismBudget: Record<string, number>;
+};
+export interface IDatasetCultureInstitutions {
+  publicLibraries: Record<string, number>;
+  cultureCenters: Record<string, number>;
+  cinemas: Record<string, number>;
+  museums: Record<string, number>;
 };
 export interface IDatasetCultureBudget {
   totalSpending: Record<string, number>;
@@ -24,13 +46,26 @@ export interface IDatasetCultureBudget {
   perCapitaSpending: Record<string, number>;
   /** % from total budget */
   budgetShare: Record<string, number>;
-}
-export interface IDatasetRevitalization {
-  plannedProjects: Record<string, number>;
-  completedProjects: Record<string, number>;
-  renovatedFlats: Record<string, number>;
-  renovationCostMln: Record<string, number>;
-}
+};
+export interface IDatasetEvents {
+  spending: Record<string, number>;
+  spendingShare: Record<string, number>;
+  /** leading data */
+  participationByFestival: Record<string, Record<string, number>>;
+  participantsPerCapita: Record<string, number>;
+};
+// Odd Datasets
+export interface IDatasetHolidays {
+  date: string;
+  localName: string;
+  name: string;
+  countryCode: string;
+  fixed: boolean;
+  global: boolean;
+  counties: string[] | null;
+  launchYear: number | null;
+  types: string[];
+};
 
 
 export const CMainDatasets = {
@@ -42,5 +77,5 @@ export const CMainDatasets = {
   events2: "https://otwartedane.lublin.eu/dataset/5587e7a4-872e-4200-8335-1cc75e3cf93d/resource/ca3c72ab-d97f-45e8-b6c0-7cccfa36ffb6/download/d.1.2.-liczba-uczestnikow-wybranych-wydarze-kulturalnych-oraz-imprez-artystyczno-rozrywkowych-og.csv",
 };
 export const COddDatasets = {
-  holidays: "https://date.nager.at/api/v3/PublicHolidays/$/AT"
-}
+  holidays: "https://date.nager.at/api/v3/PublicHolidays/$/PL"
+};

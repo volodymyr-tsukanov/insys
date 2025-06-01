@@ -65,7 +65,6 @@ export async function fetchOddDataset(url: string, options?: IFetchOptions): Pro
   if (!textCsv || textCsv.length < 2)
     throw new FetchError(`fetchOD data is too small (${textCsv})`);
   const modifiedDate = resp.headers.get("last-modified");
-  console.log(resp.headers);
   return {
     contentType: EDatasetType.csv,
     data: textCsv,
