@@ -18,6 +18,19 @@ export interface IDataset {
   modifiedDate?: Date;
   tag?: string;
 };
+export interface IDatasetCultureBudget {
+  totalSpending: Record<string, number>;
+  /** na 1 mieszkanca */
+  perCapitaSpending: Record<string, number>;
+  /** % from total budget */
+  budgetShare: Record<string, number>;
+}
+export interface IDatasetRevitalization {
+  plannedProjects: Record<string, number>;
+  completedProjects: Record<string, number>;
+  renovatedFlats: Record<string, number>;
+  renovationCostMln: Record<string, number>;
+}
 
 
 export const CMainDatasets = {

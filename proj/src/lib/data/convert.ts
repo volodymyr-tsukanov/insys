@@ -5,7 +5,7 @@
 import { XMLBuilder } from "fast-xml-parser";
 import * as yaml from "js-yaml";
 
-const NAMESPACE = 'convert';
+const NAMESPACE = 'data::convert:';
 
 
 /** uses _parseInt parseFloat_, handles imperfections
@@ -29,7 +29,7 @@ function splitCsvRow(row: string, separator: string): string[] {
   const columns: string[] = [];
   const regexp = new RegExp(`"([^"]*)"|([^${separator}]+)`, 'g'); //! regex doesn't fully comply with RFC 4180, the CSV spec (unable to parse double escape quotes like `"He said ""hello"""`)
   let match: RegExpExecArray | null;
-  const filteredRow = row.replaceAll(separator+separator,separator+' '+separator);
+  const filteredRow = row.replaceAll(separator + separator, separator + ' ' + separator);
   while ((match = regexp.exec(filteredRow)) !== null) {
     const value = match[1] ?? match[2] ?? '';
     columns.push(value);
@@ -47,14 +47,14 @@ function findCsvSeparator(headRow: string): CSVHeader {
     }
   }
   if (separator === undefined)
-    throw SyntaxError(`${NAMESPACE}::csv header unseparable`);
+    throw SyntaxError(`${NAMESPACE}csv header unseparable`);
   return { separator: separator, columnNames: columnNames };
 }
 function parseCsvRow(row: string, header: CSVHeader, jsonObj: any) {
   if (row.length < header.columnNames.length) return;
   const columns = splitCsvRow(row, header.separator);
   if (columns.length !== header.columnNames.length)
-    console.warn(`${NAMESPACE}::csv row structure differs from header (${columns.length}!=${header.columnNames.length})`);
+    console.warn(`${NAMESPACE}csv row structure differs from header (${columns.length}!=${header.columnNames.length})`);
   const [key, ...values] = columns;
   let i = 1;
   jsonObj[key] = {};
@@ -67,9 +67,8 @@ export function csv2json(csvString: string): any {
   const rows = csvString.split(/\r\n|\r|\n/);
   try {
     const header = findCsvSeparator(rows[0]);
-    const innerObj = {};
-    for (let i = 1; i < rows.length; i++) parseCsvRow(rows[i], header, innerObj);
-    jsonObj[header.columnNames[0]] = innerObj;
+    jsonObj["COLUMN_HEADER"] = header.columnNames[0];
+    for (let i = 1; i < rows.length; i++) parseCsvRow(rows[i], header, jsonObj);
   } catch (err) {
     console.error(err);
   }
