@@ -76,21 +76,21 @@ export async function getMainRevitalization(): Promise<IDatasetRevitalization> {
   if (!plannedKey || !completedKey || !flatsKey || !costKey)
     throw new InlineError(`getMainRevitalization some keys not match`);
 
-  const plannedProjects: Record<string, number> = {};
-  const completedProjects: Record<string, number> = {};
+  const projectsPlanned: Record<string, number> = {};
+  const projectsCompleted: Record<string, number> = {};
   const renovatedFlats: Record<string, number> = {};
   const renovationCostMln: Record<string, number> = {};
 
   for (const year in rawData[plannedKey]) {
-    plannedProjects[year] = string2number(rawData[plannedKey][year], 'integer');
-    completedProjects[year] = string2number(rawData[completedKey][year], 'integer');
+    projectsPlanned[year] = string2number(rawData[plannedKey][year], 'integer');
+    projectsCompleted[year] = string2number(rawData[completedKey][year], 'integer');
     renovatedFlats[year] = string2number(rawData[flatsKey][year], 'integer');
     renovationCostMln[year] = string2number(rawData[costKey][year], 'decimal');
   }
 
   return {
-    plannedProjects,
-    completedProjects,
+    projectsPlanned,
+    projectsCompleted,
     renovatedFlats,
     renovationCostMln
   };
@@ -154,7 +154,7 @@ export async function getMainEvents(): Promise<IDatasetEvents> {
   let spendingShareKey: string | undefined;
 
   const participationByFestival: Record<string, Record<string, number>> = {};
-  const spending: Record<string, number> = {};
+  const spendingMln: Record<string, number> = {};
   const spendingShare: Record<string, number> = {};
   const participantsPerCapita: Record<string, number> = {};
 
@@ -174,7 +174,7 @@ export async function getMainEvents(): Promise<IDatasetEvents> {
     throw new InlineError(`getMainEvents some keys not match`);
 
   for (const year in raw1[spendingKey]) {
-    spending[year] = string2number(raw1[spendingKey][year], 'decimal');
+    spendingMln[year] = string2number(raw1[spendingKey][year], 'decimal');
     spendingShare[year] = string2number(raw1[spendingShareKey][year], 'decimal');
   }
 
@@ -195,7 +195,7 @@ export async function getMainEvents(): Promise<IDatasetEvents> {
   }
 
   return {
-    spending,
+    spendingMln,
     spendingShare,
     participationByFestival,
     participantsPerCapita,
@@ -262,4 +262,46 @@ export async function getOddHolidays(year: number): Promise<IDatasetHolidays[]> 
     launchYear: item.launchYear ?? null,
     types: Array.isArray(item.types) ? item.types : [],
   }));
+}
+
+
+// ALL
+export async function getAllDatasets(): Promise<{
+  cultureBudget: IDatasetCultureBudget;
+  revitalization: IDatasetRevitalization;
+  tourism: IDatasetTourism;
+  events: IDatasetEvents;
+  cultureInstitutions: IDatasetCultureInstitutions;
+  holidays: { [year: number]: IDatasetHolidays[] };
+}> {
+  const [
+    cultureBudget,
+    revitalization,
+    tourism,
+    events,
+    cultureInstitutions,
+  ] = await Promise.all([
+    getMainCultureBudget(),
+    getMainRevitalization(),
+    getMainTourism(),
+    getMainEvents(),
+    getMainCultureInstitutions(),
+  ]);
+
+  const holidays: { [year: number]: IDatasetHolidays[] } = {};
+
+  // Fetch holidays for 2015-2024
+  const years = Array.from({ length: 10 }, (_, i) => 2015 + i);
+  for (const year of years) {
+    holidays[year] = await getOddHolidays(year);
+  }
+
+  return {
+    cultureBudget,
+    revitalization,
+    tourism,
+    events,
+    cultureInstitutions,
+    holidays,
+  };
 }

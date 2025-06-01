@@ -21,8 +21,8 @@ export interface IDataset {
 };
 // Main Datasets
 export interface IDatasetRevitalization {
-  plannedProjects: Record<string, number>;
-  completedProjects: Record<string, number>;
+  projectsPlanned: Record<string, number>;
+  projectsCompleted: Record<string, number>;
   renovatedFlats: Record<string, number>;
   /** in mln zl */
   renovationCostMln: Record<string, number>;
@@ -48,7 +48,9 @@ export interface IDatasetCultureBudget {
   budgetShare: Record<string, number>;
 };
 export interface IDatasetEvents {
-  spending: Record<string, number>;
+  /** event organization cost (w mln zl) */
+  spendingMln: Record<string, number>;
+  /** % from total budget */
   spendingShare: Record<string, number>;
   /** leading data */
   participationByFestival: Record<string, Record<string, number>>;
@@ -66,6 +68,20 @@ export interface IDatasetHolidays {
   launchYear: number | null;
   types: string[];
 };
+// Calculated Datasets
+export interface IDatasetIntermediate {
+  /** year → number of citizens */
+  estimatedCitizens: Record<string, number>;
+  institutionsPerCitizen?: Record<string, number>;
+  touristsPerCitizen?: Record<string, number>;
+}
+export interface IDatasetResults {
+  eventParticipationPerCitizen: Record<string, number>;
+  costPerEventParticipant: Record<string, number>;
+  eventBudgetShare: Record<string, number>;
+  revitalizationCompletionRate: Record<string, number>;
+  cultureSpendingShareChange: Record<string, number>;
+}
 
 
 export const CMainDatasets = {
