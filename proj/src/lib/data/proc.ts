@@ -8,6 +8,11 @@ import { getAllDatasets } from "./getter";
 const NAMESPACE = 'data::proc:';
 
 
+export interface IDatasetProcessed {
+  intermediate: IDatasetIntermediate;
+  results: IDatasetResults;
+};
+
 export class ProcError extends Error {
   static CAUSE = 'ECProc';
   name: string;
@@ -112,10 +117,8 @@ function procResults(
   };
 }
 
-export async function proc(): Promise<{
-  intermediate: IDatasetIntermediate;
-  results: IDatasetResults;
-}> {
+
+export async function proc(): Promise<IDatasetProcessed> {
   const {
     cultureBudget,
     revitalization,

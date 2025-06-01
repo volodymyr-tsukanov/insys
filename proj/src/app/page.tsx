@@ -1,7 +1,11 @@
-export default async function Home() {
+import Calculate from "@/components/Calculate";
+
+
+export default function Home() {
   return (
-    <>
-      <h1>InSys proj</h1>
-    </>
+    <main className="p-6">
+      <h1 className="text-2xl mb-4">📊 Insys: <b>Lublin</b> - Stolica Kultury</h1>
+      <Calculate />
+    </main>
   );
 }
