@@ -2,7 +2,7 @@
  Copyright (C) 2025  volodymyr-tsukanov  insys
  for the full copyright notice see the LICENSE file in the root of repository
 */
-import { CMainDatasets, COddDatasets, IDatasetCultureBudget, IDatasetCultureInstitutions, IDatasetEvents, IDatasetHolidays, IDatasetRevitalization, IDatasetTourism } from "../consts";
+import { CMainDatasets, COddDatasets, CYearRange, IDatasetCultureBudget, IDatasetCultureInstitutions, IDatasetEvents, IDatasetHolidays, IDatasetRevitalization, IDatasetTourism } from "../consts";
 import { fetchMainDataset, fetchOddDataset } from "../fetcher";
 import { csv2json, string2number } from "./convert";
 
@@ -290,9 +290,7 @@ export async function getAllDatasets(): Promise<{
 
   const holidays: { [year: number]: IDatasetHolidays[] } = {};
 
-  // Fetch holidays for 2015-2024
-  const years = Array.from({ length: 10 }, (_, i) => 2015 + i);
-  for (const year of years) {
+  for (const year of CYearRange) {
     holidays[year] = await getOddHolidays(year);
   }
 

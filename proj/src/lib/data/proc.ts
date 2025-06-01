@@ -2,7 +2,7 @@
  Copyright (C) 2025  volodymyr-tsukanov  insys
  for the full copyright notice see the LICENSE file in the root of repository
 */
-import { IDatasetCultureBudget, IDatasetCultureInstitutions, IDatasetEvents, IDatasetIntermediate, IDatasetResults, IDatasetRevitalization, IDatasetTourism } from "../consts";
+import { CYearRange, IDatasetCultureBudget, IDatasetCultureInstitutions, IDatasetEvents, IDatasetIntermediate, IDatasetResults, IDatasetRevitalization, IDatasetTourism } from "../consts";
 import { getAllDatasets } from "./getter";
 
 const NAMESPACE = 'data::proc:';
@@ -58,8 +58,8 @@ function procIntermediates(
 
   return {
     estimatedCitizens,
-    institutionsPerCitizen: Object.keys(institutionsPerCitizen).length ? institutionsPerCitizen : undefined,
-    touristsPerCitizen: Object.keys(touristsPerCitizen).length ? touristsPerCitizen : undefined,
+    institutionsPerCitizen,
+    touristsPerCitizen
   };
 }
 
@@ -75,7 +75,7 @@ function procResults(
   const revitalizationCompletionRate: Record<string, number> = {};
   const cultureSpendingShareChange: Record<string, number> = {};
 
-  const years = Object.keys(events.spendingMln);
+  const years: string[] = CYearRange.map(String);
 
   for (const year of years) {
     const citizens = intermediate.estimatedCitizens[year];
@@ -88,16 +88,16 @@ function procResults(
     const spendShare = cultureBudget.budgetShare[year];
     const prevSpendShare = cultureBudget.budgetShare[(+year - 1).toString()];
 
-    if (!Number.isNaN(totalParticipants) && !Number.isNaN(citizens) && citizens > 0) {
+    if (totalParticipants && citizens && citizens > 0) {
       eventParticipationPerCitizen[year] = totalParticipants / citizens;
     }
-    if (!Number.isNaN(spending) && totalParticipants > 0) {
+    if (spending && totalParticipants > 0) {
       costPerEventParticipant[year] = (spending * 1_000_000) / totalParticipants;
     }
-    if (!Number.isNaN(spending) && !Number.isNaN(cultureSpend) && cultureSpend > 0) {
+    if (spending && cultureSpend && cultureSpend > 0) {
       eventBudgetShare[year] = (spending * 1_000_000) / cultureSpend;
     }
-    if (!Number.isNaN(spendShare) && !Number.isNaN(prevSpendShare)) {
+    if (spendShare && prevSpendShare) {
       cultureSpendingShareChange[year] = spendShare - prevSpendShare;
     }
 

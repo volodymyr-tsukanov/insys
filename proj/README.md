@@ -104,7 +104,7 @@ podman-compose up -d
   + `IDatasetCultureInstitutions`
   + `IDatasetIntermediate.estimatedCitizens`
 - Example metric:
-  `librariesPer100k = (publicLibraries[year] / estimatedCitizens[year]) * 100000`
+  `librariesPer10k = (publicLibraries[year] / estimatedCitizens[year]) * 10000`
 - Insight: Infrastructure availability — helps normalize for population growth.
 
 ---

@@ -72,8 +72,9 @@ export interface IDatasetHolidays {
 export interface IDatasetIntermediate {
   /** year → number of citizens */
   estimatedCitizens: Record<string, number>;
-  institutionsPerCitizen?: Record<string, number>;
-  touristsPerCitizen?: Record<string, number>;
+  /** needs normalization by 10k */
+  institutionsPerCitizen: Record<string, number>;
+  touristsPerCitizen: Record<string, number>;
 }
 export interface IDatasetResults {
   eventParticipationPerCitizen: Record<string, number>;
@@ -83,6 +84,8 @@ export interface IDatasetResults {
   cultureSpendingShareChange: Record<string, number>;
 }
 
+
+export const CYearRange = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
 
 export const CMainDatasets = {
   revitalization: "https://otwartedane.lublin.eu/dataset/6f9a08f3-6d5c-4542-b80d-1aeb403d5243/resource/201c3188-e03a-4dee-83ab-dece8d532cfa/download/program-rewitalizacji-dla-lublina-na-lata-20172023.csv",
