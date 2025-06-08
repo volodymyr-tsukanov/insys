@@ -115,7 +115,6 @@ export async function getMainTourism(): Promise<IDatasetTourism> {
     else if (filteredKey.includes("upowszechniania")) budgetKey = key;
     else console.warn(`getMainTourism ${filteredKey}`);
   }
-
   if (!totalVisitorsKey || !touristsKey || !infoCenterKey || !foreignKey || !budgetKey)
     throw new InlineError(`getMainTourism some keys not match`);
 
@@ -126,9 +125,11 @@ export async function getMainTourism(): Promise<IDatasetTourism> {
   const tourismBudget: Record<string, number> = {};
 
   for (const year in rawData[totalVisitorsKey]) {
-    totalVisitors[year] = string2number(rawData[totalVisitorsKey][year], 'integer');
+    let v = string2number(rawData[totalVisitorsKey][year], 'integer');
+    if (v != null && !Number.isNaN(v)) totalVisitors[year] = v;
     tourists[year] = string2number(rawData[touristsKey][year], 'integer');
-    infoCenterVisitors[year] = string2number(rawData[infoCenterKey][year], 'integer');
+    v = string2number(rawData[infoCenterKey][year], 'integer');
+    if (v != null && !Number.isNaN(v)) infoCenterVisitors[year] = v;
     foreignTourists[year] = string2number(rawData[foreignKey][year], 'integer');
     tourismBudget[year] = string2number(rawData[budgetKey][year], 'decimal');
   }
@@ -158,26 +159,42 @@ export async function getMainEvents(): Promise<IDatasetEvents> {
   const spendingShare: Record<string, number> = {};
   const participantsPerCapita: Record<string, number> = {};
 
+  // --- Normalize utility ---
+  const normalizeFestivalKey = (key: string): string =>
+    key.replace(/^Liczba uczestników imprez kulturalnych, w ramach:\s*/i, '')
+      .replace(/Międzynarodowy Festiwal/i, 'Festiwal')
+      .replace(/Festiwal(?:u)?\s*/i, 'Festiwal ')
+      .replace(/„|”|’|'|ʼ|"|\*/g, '')
+      .replace(/–|—/g, '-') // normalize dashes
+      .replace(/\s+/g, ' ') // normalize spaces
+      .trim();
+
   // --- Process events1 ---
   for (const key of Object.keys(raw1)) {
     const filteredKey = key.toLowerCase();
-    if (filteredKey.includes("wydatki miasta na kulturę")) spendingKey = key;
-    else if (filteredKey.includes("udział wydatków na kulturę")) spendingShareKey = key;
-    else if (filteredKey.includes("uczestników imprez")) {
-      participationByFestival[key] = {};
+    if (filteredKey.includes("wydatki miasta na kulturę")) {
+      spendingKey = key;
+    } else if (filteredKey.includes("udział wydatków na kulturę")) {
+      spendingShareKey = key;
+    } else if (filteredKey.includes("uczestników imprez")) {
+      const normalized = normalizeFestivalKey(key);
+      participationByFestival[normalized] = {};
       for (const year in raw1[key]) {
-        participationByFestival[key][year] = string2number(raw1[key][year], 'integer');
+        const v = string2number(raw1[key][year], 'integer');
+        if (v != null && !Number.isNaN(v)) {
+          participationByFestival[normalized][year] = v;
+        }
       }
-    } else console.warn(`getMainEvents (events1): unknown key: ${filteredKey}`);
+    } else {
+      console.warn(`getMainEvents (events1): unknown key: ${filteredKey}`);
+    }
   }
   if (!spendingKey || !spendingShareKey)
-    throw new InlineError(`getMainEvents some keys not match`);
-
+    throw new InlineError(`getMainEvents: some keys not match`);
   for (const year in raw1[spendingKey]) {
     spendingMln[year] = string2number(raw1[spendingKey][year], 'decimal');
     spendingShare[year] = string2number(raw1[spendingShareKey][year], 'decimal');
   }
-
   // --- Process events2 ---
   for (const key of Object.keys(raw2)) {
     const filteredKey = key.toLowerCase();
@@ -185,11 +202,17 @@ export async function getMainEvents(): Promise<IDatasetEvents> {
       for (const year in raw2[key]) {
         participantsPerCapita[year] = string2number(raw2[key][year], 'decimal');
       }
-    } else {
-      participationByFestival[key] = {};
-
+    } else if (filteredKey !== "column_header") {
+      const normalized = normalizeFestivalKey(key);
+      if (!participationByFestival[normalized]) {
+        participationByFestival[normalized] = {};
+      }
       for (const year in raw2[key]) {
-        participationByFestival[key][year] = string2number(raw2[key][year], 'integer');
+        const v = string2number(raw2[key][year], 'integer');
+        if (v != null && !Number.isNaN(v)) {
+          // Override or set data from raw2 (assumed newer/more complete)
+          participationByFestival[normalized][year] = v;
+        }
       }
     }
   }
@@ -272,7 +295,7 @@ export async function getAllDatasets(): Promise<{
   tourism: IDatasetTourism;
   events: IDatasetEvents;
   cultureInstitutions: IDatasetCultureInstitutions;
-  holidays: { [year: number]: IDatasetHolidays[] };
+  holidays: { [year: string]: IDatasetHolidays[] };
 }> {
   const [
     cultureBudget,
@@ -288,10 +311,10 @@ export async function getAllDatasets(): Promise<{
     getMainCultureInstitutions(),
   ]);
 
-  const holidays: { [year: number]: IDatasetHolidays[] } = {};
+  const holidays: { [year: string]: IDatasetHolidays[] } = {};
 
   for (const year of CYearRange) {
-    holidays[year] = await getOddHolidays(year);
+    holidays[year.toFixed(0)] = await getOddHolidays(year);
   }
 
   return {

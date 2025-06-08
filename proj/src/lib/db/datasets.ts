@@ -25,7 +25,7 @@ const RecordStringNumber = {
 const IntermediateSchema = new Schema<IDatasetIntermediate>(
   {
     estimatedCitizens: RecordStringNumber,
-    institutionsPerCitizen: RecordStringNumber,
+    institutionsPer10kCitizens: RecordStringNumber,
     touristsPerCitizen: RecordStringNumber,
   },
   { timestamps: true }

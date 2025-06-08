@@ -18,6 +18,9 @@ npx create-next-app@latest .
 podman-compose up -d
 ```
 
+---
+---
+
 ## Sources
 ### Main Dataset
 #### info
@@ -79,17 +82,12 @@ podman-compose up -d
 #### links
 - [Public holidays](https://date.nager.at/)
 
-
-## Results
-### 📊 1. Culture Spending Share Change
-**Source:** `IDatasetCultureBudget.spendingShare`
-**Purpose:** Show how the **share of cultural spending** changed **year over year**.
-- Formula: `change[year] = spendingShare[year] - spendingShare[previousYear]`
-- Insight: Reveals political or budgetary shifts in city priorities.
-
+---
 ---
 
-### 🧑‍🤝‍🧑 2. Event Participation per Citizen
+## Results
+### Intermediate Metrics
+### 🧑‍🤝‍🧑 1. Event Participation per Citizen
 - **Sources:**
   + `IDatasetEvents.participationByFestival`
   + `IDatasetIntermediate.estimatedCitizens`
@@ -97,9 +95,7 @@ podman-compose up -d
   `sum(all festival participants) / estimatedCitizens[year]`
 - Insight: Tracks cultural **engagement** level relative to population.
 
----
-
-### 🎥 3. Institutions per Citizen
+### 🎥 2. Institutions per Citizen
 - **Sources:**
   + `IDatasetCultureInstitutions`
   + `IDatasetIntermediate.estimatedCitizens`
@@ -107,9 +103,7 @@ podman-compose up -d
   `librariesPer10k = (publicLibraries[year] / estimatedCitizens[year]) * 10000`
 - Insight: Infrastructure availability — helps normalize for population growth.
 
----
-
-### 🌍 4. Tourists per Citizen
+### 🌍 3. Tourists per Citizen
 - **Sources:**
   + `IDatasetTourism.tourists`
   + `IDatasetIntermediate.estimatedCitizens`
@@ -118,6 +112,13 @@ podman-compose up -d
 - Insight: Indicates tourism saturation or growth potential.
 
 ---
+
+### Result Metrics
+### 📊 4. Culture Spending Share Change
+**Source:** `IDatasetCultureBudget.spendingShare`
+**Purpose:** Show how the **share of cultural spending** changed **year over year**.
+- Formula: `change[year] = spendingShare[year] - spendingShare[previousYear]`
+- Insight: Reveals political or budgetary shifts in city priorities.
 
 ### 🧾 5. Cost per Participant (Event Efficiency)
 - **Sources:**
@@ -133,8 +134,6 @@ podman-compose up -d
   `ratio[year] = completed[year] / planned[year]`
 - Insight: Track effectiveness in revitalization execution.
 
----
-
 ### 🏛️ 7. Cultural Events Budget Share
 - **Sources:**
   + `IDatasetEvents.spending` (in **mln zł**)
@@ -144,3 +143,46 @@ podman-compose up -d
 - Insight: Measures what **portion of the total culture budget** is allocated specifically to **cultural events**, helping identify:
   + Overspending or underspending on events
   + Shifts in policy from infrastructure/support to engagement/celebration
+
+---
+
+### Final Integration Metrics
+### 📅 8. Events per Holiday
+- **Sources:**
+  + `IDatasetIntermediate.eventTotalParticipants`
+  + `IEnrichedYear.holidayCount`
+- Formula:
+  `eventPerHoliday[year] = eventTotalParticipants[year] / holidayCount`
+- Insight: Indicates cultural density per holiday — how many participants events attract during public holidays.
+
+### 🌐 9. Tourists per Holiday
+- **Sources:**
+  + `IDatasetIntermediate.touristsPerCitizen`
+  + `IDatasetIntermediate.estimatedCitizens`
+  + `IEnrichedYear.holidayCount`
+- Formula:
+  `touristsPerHoliday[year] = (touristsPerCitizen[year] * estimatedCitizens[year]) / holidayCount`
+- Insight: Evaluates how holidays align with tourism peaks — potential for tourism-oriented events.
+
+### 🧮 10. Holiday Clustering Index
+- **Sources:**
+  + `IEnrichedYear.holidaysByMonth`
+- Formula:
+  `stdDev(holidaysPerMonth) / mean(holidaysPerMonth)`
+- Insight: Measures how clustered holidays are across the year. High clustering might suggest concentrated cultural or economic activity.
+
+### 🏛️ 11. Institution to Holiday Ratio
+- **Sources:**
+  + `IDatasetIntermediate.institutionsPer10kCitizens`
+  + `IEnrichedYear.holidayCount`
+- Formula:
+  `institutionToHolidayRatio[year] = institutionsPer10kCitizens[year] / holidayCount`
+- Insight: Assesses whether cultural infrastructure is evenly distributed relative to available holidays.
+
+### 💸 12. Cost per Holiday Participant
+- **Sources:**
+  + `IDatasetResults.costPerEventParticipant`
+  + `IEnrichedYear.eventPerHoliday`
+- Formula:
+  `costPerHolidayParticipant[year] = costPerEventParticipant[year] * eventPerHoliday[year]`
+- Insight: A refined look at efficiency — budget impact per holiday-based participation opportunity.

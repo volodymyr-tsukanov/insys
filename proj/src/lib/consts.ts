@@ -69,19 +69,47 @@ export interface IDatasetHolidays {
   types: string[];
 };
 // Calculated Datasets
+/** Calculated using _MainDataset_ */
 export interface IDatasetIntermediate {
   /** year → number of citizens */
   estimatedCitizens: Record<string, number>;
   /** needs normalization by 10k */
-  institutionsPerCitizen: Record<string, number>;
+  institutionsPer10kCitizens: Record<string, number>;
   touristsPerCitizen: Record<string, number>;
+  foreignTouristsPerCitizen: Record<string, number>;
+  eventTotalParticipants: Record<string, number>;
 }
+/** Calculated using _MainDataset_ */
 export interface IDatasetResults {
   eventParticipationPerCitizen: Record<string, number>;
+  eventParticipationPerTourist: Record<string, number>;
+  eventParticipationPerForeignTourist: Record<string, number>;
   costPerEventParticipant: Record<string, number>;
-  eventBudgetShare: Record<string, number>;
   revitalizationCompletionRate: Record<string, number>;
   cultureSpendingShareChange: Record<string, number>;
+}
+/** Final integration outputs */
+export interface IEnrichedYear {
+  year: string;
+  // intermediate
+  estimatedCitizens?: number;
+  institutionsPer10kCitizens?: number;
+  touristsPerCitizen?: number;
+  eventTotalParticipants?: number;
+  // results
+  eventParticipationPerCitizen?: number;
+  costPerEventParticipant?: number;
+  revitalizationCompletionRate?: number;
+  cultureSpendingShareChange?: number;
+  // holiday stats
+  holidayCount: number;
+  holidaysByMonth: Record<string, number>;
+  // Derived metrics
+  eventPerHoliday?: number;
+  touristsPerHoliday?: number;
+  holidayClusteringIndex?: number;
+  institutionToHolidayRatio?: number;
+  costPerHolidayParticipant?: number;
 }
 
 

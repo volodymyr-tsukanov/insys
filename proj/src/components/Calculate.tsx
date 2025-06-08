@@ -1,20 +1,37 @@
 'use client';
 import { useState } from 'react';
 import type { IDatasetProcessed } from '@/lib/data/proc';
+import { IDatasetEvents } from '@/lib/consts';
 
 
 export default function CalculateClient() {
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<IDatasetProcessed | null>(null);
+  const [data, setData] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleClick = async () => {
+  const handleCaclulate = async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch('/api/calculate', { next: { revalidate: 60 } });
-      if (!res.ok) throw new Error('Failed to fetch');
+      if (!res.ok) throw new Error('Failed to fetch calculations');
       const json: IDatasetProcessed = await res.json();
+      setData(json);
+    } catch (e: any) {
+      setError(e.message ?? 'Unexpected error');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleGetEvents = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        '/api/get?type=events',
+        { next: { revalidate: 60 } });
+      if (!res.ok) throw new Error('Failed to fetch events');
+      const json: IDatasetEvents = await res.json();
       setData(json);
     } catch (e: any) {
       setError(e.message ?? 'Unexpected error');
@@ -26,11 +43,18 @@ export default function CalculateClient() {
   return (
     <div>
       <button
-        onClick={handleClick}
+        onClick={handleCaclulate}
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         disabled={loading}
       >
         {loading ? 'Calculating...' : 'Calculate Metrics'}
+      </button>
+      <button
+        onClick={handleGetEvents}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        disabled={loading}
+      >
+        {loading ? 'Getting...' : 'Get Events Data'}
       </button>
 
       {error && <p className="text-red-500 mt-4">Error: {error}</p>}
