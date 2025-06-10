@@ -111,6 +111,13 @@ export interface IEnrichedYear {
   institutionToHolidayRatio?: number;
   costPerHolidayParticipant?: number;
 }
+/** Dataset с месяцами проведения фестивалей и праздников по годам */
+export interface IEventMonthsByYear {
+  /** год → (название мероприятия → номер месяца проведения) */
+  festivalMonthsByYear: Record<string, Record<string, number>>;
+  holidayMonthsByYear: Record<string, Record<string, number>>;
+}
+
 
 
 export const CYearRange = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];

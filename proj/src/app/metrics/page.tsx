@@ -17,6 +17,7 @@ import {IEnrichedYear} from "@/lib/consts";
 import {fetchMainDataset, fetchOddDataset} from "@/lib/fetcher";
 import ComparisonPage from "@/components/charts/comparison-page";
 import Calculate from "@/components/Calculate";
+import FestivalChart from "@/components/charts/holidays";
 
 
 export default function Home() {
@@ -66,6 +67,7 @@ export default function Home() {
                             <TabsTrigger value="cost-per-participant">Cost per Participant</TabsTrigger>
                             <TabsTrigger value="completed-projects">Completed Projects Ratio</TabsTrigger>
                             <TabsTrigger value="cultural-event-budget">Cultural Event Budget Share</TabsTrigger>
+                            <TabsTrigger value="festival-months">Holidays</TabsTrigger>
                         </div>
                     </TabsList>
                     <Participation metrics={metrics} events={events}/>
@@ -75,6 +77,8 @@ export default function Home() {
                     <CostPerParticipant metrics={metrics} events={events}/>
                     <CompletedProjects metrics={metrics} events={events}/>
                     <CulturalEventBudget metrics={metrics} events={events}/>
+                    <FestivalChart/>
+
                 </Tabs>
                 <ChartProvider metrics={metrics} events={events}>
                     <div className="col-span-1 p-4 bg-white rounded-lg shadow-md h-[500px] overflow-y-auto">
