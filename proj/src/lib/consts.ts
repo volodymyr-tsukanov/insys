@@ -126,3 +126,16 @@ export const CMainDatasets = {
 export const COddDatasets = {
   holidays: "https://date.nager.at/api/v3/PublicHolidays/$/PL"
 };
+export const FestivalMonths = {
+  WielokulturowyLublin: 6,             // май–июнь, округлил до июня (6)
+  CarnavalSztukmistrzow: 7,            // конец июля
+  EuropejskiFestiwalSmaku: 7,          // лето (июнь–июль), округлил до июля (7)
+  FestiwalKonfrontacjeTeatralne: 7,    // лето (июль–август), округлил до июля (7)
+  FestiwalFantastykiFalkon: 11,        // ноябрь
+  MiedzynarodoweSpotkaniaTeatrowTanca: 7, // лето (июль)
+  NocKultury: 6,                       // первая суббота июня
+  NocKulturyOnline: 6,                 // первая суббота июня (тот же месяц)
+  WschodKulturyInneBrzmienia: 7,       // конец июня — начало июля, округлил до июля (7)
+  FestiwalRetradycja: 8,               // конец августа
+  MiedzynarodoweSpotkaniaFolklorystyczne: 12 // декабрь
+};
