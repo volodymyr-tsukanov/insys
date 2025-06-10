@@ -203,6 +203,10 @@ const ComparisonPage: React.FC = () => {
         URL.revokeObjectURL(url);
     };
 
+    const saveData = ()=>{
+        if(false){} //TODO
+    };
+
     return (
         <div className="p-5 w-full">
             <div className="grid grid-cols-6 w-full">
@@ -410,7 +414,7 @@ const ComparisonPage: React.FC = () => {
             )}
             </div>
             <div className="w-full flex justify-end gap-2">
-                <Button variant="outline">Save Data</Button>
+                <Button variant="outline" onClick={() => saveData()}>Save Data</Button>
                 <Popover >
                     <PopoverTrigger><Button variant="outline">Export Chart</Button></PopoverTrigger>
                     <PopoverContent >

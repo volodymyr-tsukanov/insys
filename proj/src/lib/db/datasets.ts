@@ -1,67 +1,159 @@
-/*
- Copyright (C) 2025  volodymyr-tsukanov  insys
- for the full copyright notice see the LICENSE file in the root of repository
-*/
-import mongoose, { Schema, model, models } from 'mongoose';
-import { IDatasetIntermediate, IDatasetResults } from '@/lib/consts';
+import mongoose, { Document, Schema, Model } from 'mongoose';
+import { IDatasetIntermediate, IDatasetResults, IEnrichedYear } from '../consts';
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/insys';
+let isConnected = false;
+export const connectDb = async () => {
+  if (isConnected) {
+    console.log('Already connected to MongoDB');
+    return;
+  }
+
+  try {
+    // Establish the connection
+    await mongoose.connect(process.env.MONGO_URI ?? 'mongodb://localhost:27017/insys');
+    isConnected = true;
+    console.log('MongoDB connected');
+  } catch (err) {
+    console.error('Error connecting to MongoDB:', err);
+  }
+}; connectDb();
 
 
-// Connect only once (avoid during hot reloads in dev)
-if (!mongoose.connection.readyState) {
-  mongoose.connect(MONGO_URI).catch((err) => console.error('Mongo connect error:', err));
-}
-
-
-// ---------- SCHEMAS ----------
-// Generic "year-keyed record of numbers"
-const RecordStringNumber = {
-  type: Map,
-  of: Number,
-};
-
-// Intermediate dataset schema
-const IntermediateSchema = new Schema<IDatasetIntermediate>(
-  {
-    estimatedCitizens: RecordStringNumber,
-    institutionsPer10kCitizens: RecordStringNumber,
-    touristsPerCitizen: RecordStringNumber,
+// Schema for DatasetIntermediate
+const datasetIntermediateSchema = new Schema<IDatasetIntermediate>({
+  estimatedCitizens: {
+    type: Map,
+    of: Number,
+    required: true
   },
-  { timestamps: true }
-);
-
-// Results dataset schema
-const ResultsSchema = new Schema<IDatasetResults>(
-  {
-    eventParticipationPerCitizen: RecordStringNumber,
-    costPerEventParticipant: RecordStringNumber,
-    eventBudgetShare: RecordStringNumber,
-    revitalizationCompletionRate: RecordStringNumber,
-    cultureSpendingShareChange: RecordStringNumber,
+  institutionsPer10kCitizens: {
+    type: Map,
+    of: Number,
+    required: true
   },
-  { timestamps: true }
-);
+  touristsPerCitizen: {
+    type: Map,
+    of: Number,
+    required: true
+  },
+  foreignTouristsPerCitizen: {
+    type: Map,
+    of: Number,
+    required: true
+  },
+  eventTotalParticipants: {
+    type: Map,
+    of: Number,
+    required: true
+  }
+}, { timestamps: true });
 
-// ---------- MODELS ----------
+// Schema for DatasetResults
+const datasetResultsSchema = new Schema<IDatasetResults>({
+  eventParticipationPerCitizen: {
+    type: Map,
+    of: Number,
+    required: true
+  },
+  eventParticipationPerTourist: {
+    type: Map,
+    of: Number,
+    required: true
+  },
+  eventParticipationPerForeignTourist: {
+    type: Map,
+    of: Number,
+    required: true
+  },
+  costPerEventParticipant: {
+    type: Map,
+    of: Number,
+    required: true
+  },
+  revitalizationCompletionRate: {
+    type: Map,
+    of: Number,
+    required: true
+  },
+  cultureSpendingShareChange: {
+    type: Map,
+    of: Number,
+    required: true
+  }
+}, { timestamps: true });
 
-const IntermediateModel = models.Intermediate || model('Intermediate', IntermediateSchema);
-const ResultsModel = models.Results || model('Results', ResultsSchema);
+const enrichedYearSchema = new Schema({
+  year: {
+    type: String,
+    required: true,
+  },
+  estimatedCitizens: {
+    type: Number,
+    required: false,
+  },
+  institutionsPer10kCitizens: {
+    type: Number,
+    required: false,
+  },
+  touristsPerCitizen: {
+    type: Number,
+    required: false,
+  },
+  eventTotalParticipants: {
+    type: Number,
+    required: false,
+  },
+  eventParticipationPerCitizen: {
+    type: Number,
+    required: false,
+  },
+  costPerEventParticipant: {
+    type: Number,
+    required: false,
+  },
+  revitalizationCompletionRate: {
+    type: Number,
+    required: false,
+  },
+  cultureSpendingShareChange: {
+    type: Number,
+    required: false,
+  },
+  holidayCount: {
+    type: Number,
+    required: true,
+  },
+  holidaysByMonth: {
+    type: Map,
+    of: Number,
+    required: true,
+  },
+  eventPerHoliday: {
+    type: Number,
+    required: false,
+  },
+  touristsPerHoliday: {
+    type: Number,
+    required: false,
+  },
+  holidayClusteringIndex: {
+    type: Number,
+    required: false,
+  },
+  institutionToHolidayRatio: {
+    type: Number,
+    required: false,
+  },
+  costPerHolidayParticipant: {
+    type: Number,
+    required: false,
+  },
+}, { timestamps: true });
 
-// ---------- FUNCTIONS ----------
+// Mongoose Models
+const DatasetIntermediate = mongoose.model<IDatasetIntermediate & Document>('DatasetIntermediate', datasetIntermediateSchema);
+const DatasetResults = mongoose.model<IDatasetResults & Document>('DatasetResults', datasetResultsSchema);
+const EnrichedYear = mongoose.model('EnrichedYear', enrichedYearSchema);
 
-export async function saveIntermediate(data: IDatasetIntermediate) {
-  return await IntermediateModel.create(data);
-}
-
-export async function saveResults(data: IDatasetResults) {
-  return await ResultsModel.create(data);
-}
-
-export async function getLatestIntermediate(): Promise<IDatasetIntermediate | null> {
-  return (await IntermediateModel.findOne().sort({ createdAt: -1 }).lean()) as IDatasetIntermediate | null;
-}
-
-export async function getLatestResults(): Promise<IDatasetResults | null> {
-  return (await ResultsModel.findOne().sort({ createdAt: -1 }).lean()) as IDatasetResults | null;
-}
+// Exporting Models
+export { DatasetIntermediate, DatasetResults, EnrichedYear };
