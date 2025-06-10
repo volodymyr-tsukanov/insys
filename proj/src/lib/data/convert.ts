@@ -85,3 +85,37 @@ export function json2xml(jsonObj: any, options?: { format: boolean }): string {
 export function json2yaml(jsonObj: any): string {
   return yaml.dump(jsonObj);
 }
+
+export const exportChart = (chartId: string, fileName: string) => {
+  const svgElement = document.querySelector(`#${chartId} svg`);
+  if (!svgElement) return;
+
+  // Создаем копию SVG для манипуляций
+  const svgClone = svgElement.cloneNode(true) as SVGElement;
+  const svgData = new XMLSerializer().serializeToString(svgClone);
+
+  // Создаем временное изображение для конвертации SVG в Canvas
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const scale = 2; // Для лучшего качества
+    canvas.width = svgElement.clientWidth * scale;
+    canvas.height = svgElement.clientHeight * scale;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.scale(scale, scale);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+
+    // Экспорт Canvas как PNG
+    const link = document.createElement('a');
+    link.download = `${fileName}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+
+  img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+};
