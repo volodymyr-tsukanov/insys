@@ -1,5 +1,5 @@
 "use client";
-import { CEventMonths } from "@/lib/consts"; // adjust the import as needed
+import React from "react";
 import {
     ResponsiveContainer,
     BarChart,
@@ -11,37 +11,53 @@ import {
     Legend,
 } from "recharts";
 import { TabsContent } from "@/components/ui/tabs";
-import React from "react";
+import { useDataStore } from "@/app/store/useDataStore";
+import { CEventMonths } from "@/lib/consts";
 
-export function transformFestivalMonthsToChartData() {
-    const monthCounts = new Array(12).fill(0);
+const MONTH_LABELS = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
 
-    Object.values(CEventMonths).forEach((month) => {
-        if (month >= 1 && month <= 12) {
-            monthCounts[month - 1]++;
-        }
+function transformEnrichedToChartData() {
+    const enriched = useDataStore.getState().metrics?.integrated;
+    if (!enriched || enriched.length === 0) {
+        console.error(false);
+        return [];
+    }
+
+    // Use latest year for chart
+    const latest = enriched[enriched.length - 3];
+
+    const holidays = latest.holidaysByMonth;
+    const weekends = latest.weekendsByMonth;
+
+    const eventsPerMonth: Record<string, number> = {};
+    Object.values(CEventMonths).forEach(month => {
+        const m = String(month).padStart(2, '0');
+        eventsPerMonth[m] = (eventsPerMonth[m] || 0) + 1;
     });
 
-    const monthLabels = [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ];
-
-    return monthCounts.map((count, index) => ({
-        month: monthLabels[index],
-        festivals: count,
-    }));
+    return MONTH_LABELS.map((label, idx) => {
+        const m = String(idx + 1).padStart(2, '0');
+        return {
+            month: label,
+            holidays: holidays?.[m] || 0,
+            weekends: weekends?.[m] || 0,
+            festivals: eventsPerMonth?.[m] || 0,
+        };
+    });
 }
 
-export default function FestivalChart() {
-    const chartData = transformFestivalMonthsToChartData();
+export default function HolidaysWeekendsChart() {
+    const chartData = transformEnrichedToChartData();
 
     return (
-        <TabsContent value="festival-months" className="mt-6">
+        <TabsContent value="holiday-weekend" className="mt-6">
             <div className="w-full h-[500px] p-4 bg-white rounded-lg shadow-md">
-                <h3 className="text-lg mb-4">Monthly Festival Count</h3>
+                <h3 className="text-lg mb-4">Monthly Holidays vs Weekends</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                    Number of festivals held in each month.
+                    Comparison of official holidays, weekends, and known festivals by month (latest year available).
                 </p>
                 <ResponsiveContainer width="100%" height="80%">
                     <BarChart data={chartData}>
@@ -50,7 +66,9 @@ export default function FestivalChart() {
                         <YAxis allowDecimals={false} />
                         <Tooltip />
                         <Legend />
-                        <Bar dataKey="festivals" fill="#82ca9d" />
+                        <Bar dataKey="holidays" fill="#8884d8" name="Holidays" />
+                        <Bar dataKey="weekends" fill="#82ca9d" name="Weekends" />
+                        <Bar dataKey="festivals" fill="#ffc658" name="Festivals" />
                     </BarChart>
                 </ResponsiveContainer>
             </div>

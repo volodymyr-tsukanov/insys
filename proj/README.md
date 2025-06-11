@@ -186,3 +186,16 @@ podman-compose up -d
 - Formula:
   `costPerHolidayParticipant[year] = costPerEventParticipant[year] * eventPerHoliday[year]`
 - Insight: A refined look at efficiency — budget impact per holiday-based participation opportunity.
+
+### 📅 13. Event-Holiday Density Index
+- **Sources:**
+  + `CEventMonths` (mapped to months)
+  + `IEnrichedYear.holidaysByMonth`
+- Formula:
+  ```ts
+  For each month with ≥1 holiday:
+    ratio = number of known events in month / holidayCount in month
+
+  eventHolidayDensityIndex[year] = average of all such ratios
+  ```
+- Insight: Measures how well cultural events are distributed across months with holidays. A higher value indicates stronger alignment between cultural programming and public free time, suggesting efficient use of civic leisure periods.
