@@ -33,7 +33,6 @@ export default function WeekendsChart() {
       .map((yearData) => ({
         year: yearData.year,
         participants: yearData.eventTotalParticipants || 0,
-        alignment: yearData.eventHolidayAlignment ?? null,
         weekendDensity: yearData.weekendEventDensity ?? null,
       }));
 
