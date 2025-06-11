@@ -104,20 +104,16 @@ export interface IEnrichedYear {
   // holiday stats
   holidayCount: number;
   holidaysByMonth: Record<string, number>;
+  weekendCount: number;
+  weekendsByMonth: Record<string, number>;
   // Derived metrics
-  eventPerHoliday?: number;
-  touristsPerHoliday?: number;
+  eventHolidayDensityIndex?: number;
+  eventPerWeekend?: number;
+  touristsPerWeekend?: number;
   holidayClusteringIndex?: number;
-  institutionToHolidayRatio?: number;
-  costPerHolidayParticipant?: number;
+  institutionToWeekendRatio?: number;
+  costPerWeekendParticipant?: number;
 }
-/** Dataset с месяцами проведения фестивалей и праздников по годам */
-export interface IEventMonthsByYear {
-  /** год → (название мероприятия → номер месяца проведения) */
-  festivalMonthsByYear: Record<string, Record<string, number>>;
-  holidayMonthsByYear: Record<string, Record<string, number>>;
-}
-
 
 
 export const CYearRange = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
@@ -133,7 +129,7 @@ export const CMainDatasets = {
 export const COddDatasets = {
   holidays: "https://date.nager.at/api/v3/PublicHolidays/$/PL"
 };
-export const FestivalMonths = {
+export const CEventMonths = {
   WielokulturowyLublin: 6,             // май–июнь, округлил до июня (6)
   CarnavalSztukmistrzow: 7,            // конец июля
   EuropejskiFestiwalSmaku: 7,          // лето (июнь–июль), округлил до июля (7)

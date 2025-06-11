@@ -1,5 +1,5 @@
 "use client";
-import { FestivalMonths } from "@/lib/consts"; // adjust the import as needed
+import { CEventMonths } from "@/lib/consts"; // adjust the import as needed
 import {
     ResponsiveContainer,
     BarChart,
@@ -16,7 +16,7 @@ import React from "react";
 export function transformFestivalMonthsToChartData() {
     const monthCounts = new Array(12).fill(0);
 
-    Object.values(FestivalMonths).forEach((month) => {
+    Object.values(CEventMonths).forEach((month) => {
         if (month >= 1 && month <= 12) {
             monthCounts[month - 1]++;
         }

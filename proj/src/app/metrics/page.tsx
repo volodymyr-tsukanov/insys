@@ -88,7 +88,7 @@ export default function Home() {
                             <div className="flex flex-col flex-wrap">
                                 <div className="font-medium">Events per Holiday</div>
                                 <div className="font-light">
-                                    {latestData?.eventPerHoliday?.toFixed(0) || 'N/A'}
+                                    {latestData?.eventPerWeekend?.toFixed(0) || 'N/A'}
                                 </div>
                             </div>
                         </div>
@@ -97,7 +97,7 @@ export default function Home() {
                             <div className="flex flex-col flex-wrap">
                                 <div className="font-medium">Tourists per Holiday</div>
                                 <div className="font-light">
-                                    {latestData?.touristsPerHoliday?.toFixed(0) || 'N/A'}
+                                    {latestData?.touristsPerWeekend?.toFixed(0) || 'N/A'}
                                 </div>
                             </div>
                         </div>
@@ -115,7 +115,7 @@ export default function Home() {
                             <div className="flex flex-col flex-wrap">
                                 <div className="font-medium">Institution-to-Holiday Ratio</div>
                                 <div className="font-light">
-                                    {latestData?.institutionToHolidayRatio?.toFixed(3) || 'N/A'}
+                                    {latestData?.institutionToWeekendRatio?.toFixed(3) || 'N/A'}
                                 </div>
                             </div>
                         </div>

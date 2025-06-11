@@ -2,7 +2,7 @@
  Copyright (C) 2025  volodymyr-tsukanov  insys
  for the full copyright notice see the LICENSE file in the root of repository
 */
-import { CYearRange, IDatasetCultureBudget, IDatasetCultureInstitutions, IDatasetEvents, IDatasetHolidays, IDatasetIntermediate, IDatasetResults, IDatasetRevitalization, IDatasetTourism, IEnrichedYear } from "../consts";
+import { CEventMonths, CYearRange, IDatasetCultureBudget, IDatasetCultureInstitutions, IDatasetEvents, IDatasetHolidays, IDatasetIntermediate, IDatasetResults, IDatasetRevitalization, IDatasetTourism, IEnrichedYear } from "../consts";
 import { string2number } from "./convert";
 import { getAllDatasets } from "./getter";
 
@@ -137,6 +137,23 @@ function procResults(
   };
 }
 
+function procWeekends(yearStr: string): { weekendCount: number, weekendsByMonth: Record<string, number> } {
+  const year = string2number(yearStr, 'integer');
+  if (!Number.isFinite(year)) throw new Error('crap year');
+  const startDate = new Date(year, 0, 1, 1), endDate = new Date(year + 1, 0, 1);
+  const weekendsByMonth: Record<string, number> = {};
+  let weekendCount = 0;
+  for (let date = startDate; date < endDate; date.setUTCDate(date.getUTCDate() + 1)) {
+    const day = date.getDay();
+    if (day === 0 || day === 6) {
+      weekendCount++;
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // month 0-indexed
+      weekendsByMonth[month] = (weekendsByMonth[month] || 0) + 1;
+    }
+  }
+  return { weekendCount, weekendsByMonth };
+}
+
 /** Used to integrate _MainDataset_ calculations (from **proc**) with _OddDataset_ */
 function enrichWithHolidays(
   intermediate: IDatasetIntermediate,
@@ -154,6 +171,7 @@ function enrichWithHolidays(
       const holidaysByMonth: Record<string, number> = {};
       const holidayDates = hols.map(h => new Date(h.date).getTime()).sort((a, b) => a - b);
       const holidayDayGaps: number[] = [];
+      const { weekendCount, weekendsByMonth } = procWeekends(year);
 
       // For metric #3: holidayClusteringIndex
       for (let i = 1; i < holidayDates.length; i++) {
@@ -174,29 +192,40 @@ function enrichWithHolidays(
       const costPerEvent = results.costPerEventParticipant?.[year];
       const institutionsPer10k = intermediate.institutionsPer10kCitizens?.[year];
 
-      // Metric 1: eventPerHoliday
-      const eventPerHoliday = holidayCount && eventParticipants
-        ? eventParticipants / holidayCount
+      const eventPerWeekend = eventParticipants
+        ? eventParticipants / weekendCount
         : undefined;
-
-      // Metric 2: touristsPerHoliday
-      const touristsPerHoliday = holidayCount && tourists
-        ? tourists / holidayCount
+      const touristsPerWeekend = tourists
+        ? tourists / weekendCount
         : undefined;
 
       // Metric 3: holidayClusteringIndex (standard deviation of day gaps)
       const holidayClusteringIndex = holidayDayGaps.length > 0 ? stdGap : undefined;
 
-      // Metric 4: Not enough data unless we break events down by month — skipping
+      // Metric 4: eventHolidayDensityIndex
+      const eventsPerMonth: Record<string, number> = {};
+      Object.values(CEventMonths).forEach(month => {
+        const m = month.toString().padStart(2, '0');
+        eventsPerMonth[m] = (eventsPerMonth[m] || 0) + 1;
+      });
+      const holidayEventDensityRatios: number[] = Object.entries(holidaysByMonth)
+        .filter(([month, holCount]) => holCount > 0)
+        .map(([month, holCount]) => {
+          const eventCount = eventsPerMonth[month] || 0;
+          return eventCount / holCount;
+        });
+      const eventHolidayDensityIndex = holidayEventDensityRatios.length > 0
+        ? holidayEventDensityRatios.reduce((sum, val) => sum + val, 0) / holidayEventDensityRatios.length
+        : undefined;
 
       // Metric 5: institutionToHolidayRatio
-      const institutionToHolidayRatio = holidayCount && institutionsPer10k
-        ? institutionsPer10k / holidayCount
+      const institutionToWeekendRatio = institutionsPer10k
+        ? institutionsPer10k * 10_000 / weekendCount
         : undefined;
 
       // Metric 6: costPerHolidayParticipant
-      const costPerHolidayParticipant = eventParticipants && holidayCount && costPerEvent
-        ? costPerEvent * eventParticipants / holidayCount
+      const costPerWeekendParticipant = eventParticipants && costPerEvent
+        ? costPerEvent * eventParticipants / weekendCount
         : undefined;
 
       hols.forEach(h => {
@@ -219,12 +248,15 @@ function enrichWithHolidays(
         // holiday stats
         holidayCount,
         holidaysByMonth,
+        weekendCount,
+        weekendsByMonth,
         // derived metrics
-        eventPerHoliday,
-        touristsPerHoliday,
+        eventHolidayDensityIndex,
+        eventPerWeekend,
+        touristsPerWeekend,
         holidayClusteringIndex,
-        institutionToHolidayRatio,
-        costPerHolidayParticipant,
+        institutionToWeekendRatio,
+        costPerWeekendParticipant,
       } as IEnrichedYear;
     });
 }
