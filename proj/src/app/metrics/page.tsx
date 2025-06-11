@@ -68,6 +68,7 @@ export default function Home() {
                             <TabsTrigger value="completed-projects">Completed Projects Ratio</TabsTrigger>
                             <TabsTrigger value="cultural-event-budget">Cultural Event Budget Share</TabsTrigger>
                             <TabsTrigger value="festival-months">Holidays</TabsTrigger>
+                            <TabsTrigger value="weekends">Weekends</TabsTrigger>
                         </div>
                     </TabsList>
                     <Participation metrics={metrics} events={events}/>

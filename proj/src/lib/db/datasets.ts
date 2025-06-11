@@ -1,17 +1,21 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
-import { IDatasetIntermediate, IDatasetResults, IEnrichedYear } from '../consts';
 
-let isConnected = false;
+import mongoose, { Document, Schema, Model } from 'mongoose';
+import {
+  IDatasetIntermediate,
+  IDatasetResults,
+  IEnrichedYear,
+} from '../consts';
+
+
+// --- DB Connection ---
 export const connectDb = async () => {
-  if (isConnected) {
-    console.log('Already connected to MongoDB');
+  if (mongoose.connection.readyState >= 1) {
+    console.log('MongoDB already connected');
     return;
   }
 
   try {
-    // Establish the connection
     await mongoose.connect(process.env.MONGO_URI ?? 'mongodb://localhost:27017/insys');
-    isConnected = true;
     console.log('MongoDB connected');
   } catch (err) {
     console.error('Error connecting to MongoDB:', err);
@@ -19,135 +23,51 @@ export const connectDb = async () => {
 }; connectDb();
 
 
-// Schema for DatasetIntermediate
+// --- Intermediate Dataset Schema ---
 const datasetIntermediateSchema = new Schema<IDatasetIntermediate>({
-  estimatedCitizens: {
-    type: Map,
-    of: Number,
-    required: true
-  },
-  institutionsPer10kCitizens: {
-    type: Map,
-    of: Number,
-    required: true
-  },
-  touristsPerCitizen: {
-    type: Map,
-    of: Number,
-    required: true
-  },
-  foreignTouristsPerCitizen: {
-    type: Map,
-    of: Number,
-    required: true
-  },
-  eventTotalParticipants: {
-    type: Map,
-    of: Number,
-    required: true
-  }
+  estimatedCitizens: { type: Map, of: Number, required: true },
+  institutionsPer10kCitizens: { type: Map, of: Number, required: true },
+  touristsPerCitizen: { type: Map, of: Number, required: true },
+  foreignTouristsPerCitizen: { type: Map, of: Number, required: true },
+  eventTotalParticipants: { type: Map, of: Number, required: true },
 }, { timestamps: true });
-
-// Schema for DatasetResults
+// --- Results Dataset Schema ---
 const datasetResultsSchema = new Schema<IDatasetResults>({
-  eventParticipationPerCitizen: {
-    type: Map,
-    of: Number,
-    required: true
-  },
-  eventParticipationPerTourist: {
-    type: Map,
-    of: Number,
-    required: true
-  },
-  eventParticipationPerForeignTourist: {
-    type: Map,
-    of: Number,
-    required: true
-  },
-  costPerEventParticipant: {
-    type: Map,
-    of: Number,
-    required: true
-  },
-  revitalizationCompletionRate: {
-    type: Map,
-    of: Number,
-    required: true
-  },
-  cultureSpendingShareChange: {
-    type: Map,
-    of: Number,
-    required: true
-  }
+  eventParticipationPerCitizen: { type: Map, of: Number, required: true },
+  eventParticipationPerTourist: { type: Map, of: Number, required: true },
+  eventParticipationPerForeignTourist: { type: Map, of: Number, required: true },
+  costPerEventParticipant: { type: Map, of: Number, required: true },
+  revitalizationCompletionRate: { type: Map, of: Number, required: true },
+  cultureSpendingShareChange: { type: Map, of: Number, required: true },
 }, { timestamps: true });
-
-const enrichedYearSchema = new Schema({
-  year: {
-    type: String,
-    required: true,
-  },
-  estimatedCitizens: {
-    type: Number,
-    required: false,
-  },
-  institutionsPer10kCitizens: {
-    type: Number,
-    required: false,
-  },
-  touristsPerCitizen: {
-    type: Number,
-    required: false,
-  },
-  eventTotalParticipants: {
-    type: Number,
-    required: false,
-  },
-  eventParticipationPerCitizen: {
-    type: Number,
-    required: false,
-  },
-  costPerEventParticipant: {
-    type: Number,
-    required: false,
-  },
-  revitalizationCompletionRate: {
-    type: Number,
-    required: false,
-  },
-  cultureSpendingShareChange: {
-    type: Number,
-    required: false,
-  },
-  holidayCount: {
-    type: Number,
-    required: true,
-  },
-  holidaysByMonth: {
-    type: Map,
-    of: Number,
-    required: true,
-  },
-  eventPerHoliday: {
-    type: Number,
-    required: false,
-  },
-  touristsPerHoliday: {
-    type: Number,
-    required: false,
-  },
-  holidayClusteringIndex: {
-    type: Number,
-    required: false,
-  },
-  institutionToHolidayRatio: {
-    type: Number,
-    required: false,
-  },
-  costPerHolidayParticipant: {
-    type: Number,
-    required: false,
-  },
+// --- Enriched Year Schema (Final Integration Outputs) ---
+const enrichedYearSchema = new Schema<IEnrichedYear>({
+  year: { type: String, required: true },
+  // Intermediate
+  estimatedCitizens: { type: Number },
+  institutionsPer10kCitizens: { type: Number },
+  touristsPerCitizen: { type: Number },
+  eventTotalParticipants: { type: Number },
+  // Results
+  eventParticipationPerCitizen: { type: Number },
+  costPerEventParticipant: { type: Number },
+  revitalizationCompletionRate: { type: Number },
+  cultureSpendingShareChange: { type: Number },
+  // Holiday stats
+  holidayCount: { type: Number, required: true },
+  holidaysByMonth: { type: Map, of: Number, required: true },
+  weekendCount: { type: Number, required: true },
+  weekendsByMonth: { type: Map, of: Number, required: true },
+  // Derived metrics
+  eventHolidayDensityIndex: { type: Number },
+  eventPerWeekend: { type: Number },
+  touristsPerWeekend: { type: Number },
+  holidayClusteringIndex: { type: Number },
+  institutionToWeekendRatio: { type: Number },
+  costPerWeekendParticipant: { type: Number },
+  // Derived metrics (meaningful)
+  weekendEventDensity: { type: Number },
+  eventHolidayAlignment: { type: Number },
 }, { timestamps: true });
 
 // Mongoose Models

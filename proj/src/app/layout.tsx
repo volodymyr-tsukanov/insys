@@ -1,8 +1,8 @@
-import type {Metadata} from "next";
-import {Geist, Geist_Mono} from "next/font/google";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar";
-import {AppSidebar} from "@/components/app-sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -20,24 +20,24 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
+    children,
+}: Readonly<{
     children: React.ReactNode;
 }>) {
     return (
         <html lang="en">
-        <body suppressHydrationWarning
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-        <SidebarProvider>
-            <AppSidebar/>
-            <main className="p-6 py-3 w-full relative">
-                {children}
-            </main>
+            <body suppressHydrationWarning
+                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            >
+                <SidebarProvider>
+                    <AppSidebar />
+                    <main className="p-6 py-3 w-full relative">
+                        {children}
+                    </main>
 
-        </SidebarProvider>
+                </SidebarProvider>
 
-        </body>
+            </body>
         </html>
     );
 }

@@ -113,6 +113,9 @@ export interface IEnrichedYear {
   holidayClusteringIndex?: number;
   institutionToWeekendRatio?: number;
   costPerWeekendParticipant?: number;
+  // derived metrics (meaningful)
+  weekendEventDensity?: number;
+  eventHolidayAlignment?: number;
 }
 
 
@@ -129,6 +132,7 @@ export const CMainDatasets = {
 export const COddDatasets = {
   holidays: "https://date.nager.at/api/v3/PublicHolidays/$/PL"
 };
+export const CEventsTotalCount = 11;
 export const CEventMonths = {
   WielokulturowyLublin: 6,             // май–июнь, округлил до июня (6)
   CarnavalSztukmistrzow: 7,            // конец июля

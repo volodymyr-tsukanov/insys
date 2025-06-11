@@ -3,6 +3,7 @@
  for the full copyright notice see the LICENSE file in the root of repository
 */
 import { CEventMonths, CYearRange, IDatasetCultureBudget, IDatasetCultureInstitutions, IDatasetEvents, IDatasetHolidays, IDatasetIntermediate, IDatasetResults, IDatasetRevitalization, IDatasetTourism, IEnrichedYear } from "../consts";
+import { DatasetIntermediate, DatasetResults, EnrichedYear } from "../db/datasets";
 import { string2number } from "./convert";
 import { getAllDatasets } from "./getter";
 
@@ -228,10 +229,20 @@ function enrichWithHolidays(
         ? costPerEvent * eventParticipants / weekendCount
         : undefined;
 
+      const weekendEventDensity = intermediate.eventTotalParticipants?.[year]
+        ? intermediate.eventTotalParticipants[year] / weekendCount
+        : undefined;
+
       hols.forEach(h => {
         const m = (new Date(h.date).getMonth() + 1).toString().padStart(2, '0');
         holidaysByMonth[m] = (holidaysByMonth[m] || 0) + 1;
       });
+      const holidayMonths = new Set(Object.keys(holidaysByMonth));
+      const eventMonths = new Set(
+        Object.values(CEventMonths).map(m => m.toString().padStart(2, '0'))
+      );
+      const alignedMonths = [...holidayMonths].filter(m => eventMonths.has(m));
+      const eventHolidayAlignment = alignedMonths.length / 12; // Ratio of aligned months
 
       return {
         year,
@@ -257,8 +268,11 @@ function enrichWithHolidays(
         holidayClusteringIndex,
         institutionToWeekendRatio,
         costPerWeekendParticipant,
-      } as IEnrichedYear;
-    });
+        // derived metrics (meaningful)
+        weekendEventDensity,
+        eventHolidayAlignment
+      };
+    }) as IEnrichedYear[];
 }
 
 
@@ -267,24 +281,74 @@ export interface IDatasetProcessed {
   results: IDatasetResults;
   integrated: IEnrichedYear[];
 };
-/** Used to make all the calculations */
+/** Used to make all the calculations \
+ * Hybrid processor: fetches from DB or recomputes if missing */
 export async function proc(): Promise<IDatasetProcessed> {
+  try {
+    const [intermediateDoc] = await DatasetIntermediate.find().sort({ createdAt: -1 }).limit(1);
+    const [resultsDoc] = await DatasetResults.find().sort({ createdAt: -1 }).limit(1);
+    const integratedDocs = await EnrichedYear.find().sort({ year: 1 });
+
+    const hasDBData =
+      intermediateDoc &&
+      resultsDoc &&
+      Array.isArray(integratedDocs) &&
+      integratedDocs.length > 0;
+
+    if (hasDBData) {
+      return {
+        intermediate: intermediateDoc.toObject() as IDatasetIntermediate,
+        results: resultsDoc.toObject() as IDatasetResults,
+        integrated: integratedDocs.map(doc => doc.toObject()) as IEnrichedYear[],
+      };
+    } else {
+      console.warn('[proc] Some DB data missing — falling back to local processing...');
+    }
+  } catch (err) {
+    console.error('[proc] Error fetching from DB:', err);
+    console.warn('[proc] Falling back to local processing...');
+  }
+
+  // 🧠 Fallback to full recompute
   const {
     cultureBudget,
     revitalization,
     tourism,
     events,
     cultureInstitutions,
-    holidays
+    holidays,
   } = await getAllDatasets();
 
-  const intermediate = procIntermediates(cultureBudget, cultureInstitutions, tourism, events);
-  const results = procResults(events, cultureBudget, revitalization, tourism, intermediate);
+  const intermediate = procIntermediates(
+    cultureBudget,
+    cultureInstitutions,
+    tourism,
+    events
+  );
+  const results = procResults(
+    events,
+    cultureBudget,
+    revitalization,
+    tourism,
+    intermediate
+  );
   const integrated = enrichWithHolidays(intermediate, results, holidays);
+
+  // Save newly computed results to Mongo
+  try {
+    await DatasetIntermediate.create(intermediate);
+    await DatasetResults.create(results);
+    // Clean insert integrated years (optional: replace existing)
+    await EnrichedYear.deleteMany({});
+    await EnrichedYear.insertMany(integrated);
+    console.log('[proc] Computed data saved to DB');
+  } catch (err) {
+    console.error('[proc] Error saving computed data to DB:', err);
+  }
 
   return {
     intermediate,
     results,
-    integrated
+    integrated,
   };
 }
