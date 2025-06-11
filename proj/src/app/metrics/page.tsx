@@ -18,6 +18,7 @@ import {fetchMainDataset, fetchOddDataset} from "@/lib/fetcher";
 import ComparisonPage from "@/components/charts/comparison-page";
 import Calculate from "@/components/Calculate";
 import FestivalChart from "@/components/charts/holidays";
+import WeekendsChart from "@/components/charts/weekends";
 
 
 export default function Home() {
@@ -79,6 +80,7 @@ export default function Home() {
                     <CompletedProjects metrics={metrics} events={events}/>
                     <CulturalEventBudget metrics={metrics} events={events}/>
                     <FestivalChart/>
+                    <WeekendsChart/>
 
                 </Tabs>
                 <ChartProvider metrics={metrics} events={events}>

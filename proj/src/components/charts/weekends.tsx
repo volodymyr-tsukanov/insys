@@ -41,7 +41,7 @@ export default function WeekendsChart() {
   }, [metrics]);
 
   return (
-    <TabsContent value="brainrot" className="mt-6">
+    <TabsContent value="weekends" className="mt-6">
       <div className="w-full h-[500px] p-4 bg-white rounded-lg shadow-md">
         <h3 className="text-lg mb-4">Events & Alignment Trends (2015–2024)</h3>
         <p className="text-sm text-gray-600 mb-4">
