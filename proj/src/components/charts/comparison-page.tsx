@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -105,6 +107,7 @@ const ComparisonPage: React.FC = () => {
     const [selectedMetric2, setSelectedMetric2] = useState<string>('');
     const [chartData1, setChartData1] = useState<any[]>([]);
     const [chartData2, setChartData2] = useState<any[]>([]);
+    const [chartData, setChartData] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -145,6 +148,70 @@ const ComparisonPage: React.FC = () => {
         }).filter(item => item.value != null);
         setChartData2(data);
     }, [datasets, selectedDataset2, selectedMetric2]);
+
+    useEffect(() => {
+        if (!datasets || !selectedDataset1 || !selectedDataset2 || !selectedMetric1 || !selectedMetric2) return;
+
+        const combined = CYearRange.map(year => {
+            const yearStr = year.toString();
+            const val1 = datasets[selectedDataset1.key]?.[selectedMetric1]?.[yearStr] ?? null;
+            const val2 = datasets[selectedDataset2.key]?.[selectedMetric2]?.[yearStr] ?? null;
+            return {
+                year: yearStr,
+                [selectedMetric1]: val1,
+                [selectedMetric2]: val2,
+            };
+        }).filter(item => item[selectedMetric1] != null || item[selectedMetric2] != null);
+
+        setChartData(combined);
+    }, [datasets, selectedDataset1, selectedDataset2, selectedMetric1, selectedMetric2]);
+
+    const exportData = (fileType: 'json' | 'xml' | 'yaml') => {
+        if (!chartData.length) return;
+
+        const data = {
+            dataset1: {
+                name: selectedDataset1?.name,
+                metric: selectedDataset1?.metrics.find(m => m.key === selectedMetric1)?.label
+            },
+            dataset2: {
+                name: selectedDataset2?.name,
+                metric: selectedDataset2?.metrics.find(m => m.key === selectedMetric2)?.label
+            },
+            data: chartData
+        };
+
+        let blob: Blob;
+        const mimeTypes = {
+            json: 'application/json',
+            xml: 'application/xml',
+            yaml: 'application/yaml'
+        };
+
+        switch (fileType) {
+            case 'json':
+                blob = new Blob([JSON.stringify(data, null, 2)], { type: mimeTypes.json });
+                break;
+            case 'xml':
+                blob = new Blob([json2xml(data)], { type: mimeTypes.xml });
+                break;
+            case 'yaml':
+                blob = new Blob([json2yaml(data)], { type: mimeTypes.yaml });
+                break;
+            default:
+                console.error('Unsupported file type');
+                return;
+        }
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `comparison-data.${fileType}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
 
     if (error) {
         return <div className="text-red-500 text-center">{error}</div>;
@@ -225,8 +292,8 @@ const ComparisonPage: React.FC = () => {
                     <ResponsiveContainer key={idx} width="100%" height={300}>
                         <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                            <XAxis dataKey="year" label={{ value: 'Year', position: 'bottom', offset: 0 }} />
-                            <YAxis label={{ value: 'Value', angle: -90, position: 'insideLeft' }} />
+                            <XAxis dataKey="year" />
+                            <YAxis />
                             <Tooltip />
                             <Legend verticalAlign="top" height={36} />
                             <Line
@@ -242,7 +309,6 @@ const ComparisonPage: React.FC = () => {
                 ))}
             </div>
 
-            {/* Combined Chart */}
             {selectedDataset1?.key === selectedDataset2?.key && (
                 <div className="mt-10">
                     <h2 className="text-xl font-semibold mb-4 text-center">
@@ -250,16 +316,7 @@ const ComparisonPage: React.FC = () => {
                     </h2>
                     <ResponsiveContainer width="100%" height={400}>
                         <LineChart
-                            data={CYearRange.map(year => {
-                                const yearStr = year.toString();
-                                const val1 = datasets[selectedDataset1.key]?.[selectedMetric1]?.[yearStr] ?? null;
-                                const val2 = datasets[selectedDataset2.key]?.[selectedMetric2]?.[yearStr] ?? null;
-                                return {
-                                    year: yearStr,
-                                    [selectedMetric1]: val1,
-                                    [selectedMetric2]: val2,
-                                };
-                            })}
+                            data={chartData}
                             margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
@@ -285,8 +342,30 @@ const ComparisonPage: React.FC = () => {
                             />
                         </LineChart>
                     </ResponsiveContainer>
+
+                 
                 </div>
             )}
+               <div className="w-full flex justify-end gap-2 mt-4">
+                        <Popover>
+                            <PopoverTrigger>
+                                <Button variant="outline">Export Data</Button>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                                <div className="flex flex-col gap-2">
+                                    <Button onClick={() => exportData('json')} disabled={!chartData.length}>
+                                        Export to JSON
+                                    </Button>
+                                    <Button onClick={() => exportData('xml')} disabled={!chartData.length}>
+                                        Export to XML
+                                    </Button>
+                                    <Button onClick={() => exportData('yaml')} disabled={!chartData.length}>
+                                        Export to YAML
+                                    </Button>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
         </div>
     );
 };
