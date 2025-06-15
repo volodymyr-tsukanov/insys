@@ -20,7 +20,7 @@ export default function Participation({metrics, events}: ChartProps) {
                 'year',
                 'participation'
             );
-            console.log(participationData)
+            console.log(metrics.results.eventParticipationPerCitizen)
             setParticipationData(data);
         }
 

@@ -296,11 +296,11 @@ export async function proc(): Promise<IDatasetProcessed> {
       integratedDocs.length > 0;
 
     if (hasDBData) {
-      return {
+      /*return {
         intermediate: intermediateDoc.toObject() as IDatasetIntermediate,
         results: resultsDoc.toObject() as IDatasetResults,
         integrated: integratedDocs.map(doc => doc.toObject()) as IEnrichedYear[],
-      };
+      };*/
     } else {
       console.warn('[proc] Some DB data missing — falling back to local processing...');
     }

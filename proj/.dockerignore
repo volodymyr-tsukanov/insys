@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.git/
+.rules/
+
+*.md
+*.log
+*.tmp
+*.bkp

@@ -10,7 +10,7 @@ import {
 import {useDataStore} from "@/app/store/useDataStore";
 import Calculate from "@/components/Calculate";
 import Link from "next/link";
-import {ChartSpline, Home} from "lucide-react";
+import {ChartSpline, Home, Code} from "lucide-react";
 
 export function AppSidebar() {
 
@@ -32,6 +32,7 @@ export function AppSidebar() {
                 <SidebarGroup>
                     <div className="flex gap-2 items-center"><Home size={16}/><Link href="/" >Dashboard</Link></div>
                     <div className="flex gap-2 items-center"><ChartSpline size={16}/><Link href="/metrics">Metrics Visualizer</Link></div>
+                    <div className="flex gap-2 items-center"><Code size={16}/><Link href="/api-view">API view</Link></div>
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter/>

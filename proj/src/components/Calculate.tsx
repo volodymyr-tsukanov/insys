@@ -24,6 +24,7 @@ export default function CalculateClient({setMetrics, setMetricsLoading, setEvent
             const json: IDatasetProcessed = await res.json();
             setMetricsLoading("success")
             setMetrics(json);
+            console.log(json);
         } catch (e: any) {
             setMetricsLoading("error")
         }

@@ -1,34 +1,44 @@
-# Copyright (C) 2025  volodymyr-tsukanov  insys
-# for the full copyright notice see the LICENSE file in the root of repository
-
 version: '3.8'
 
 services:
-  mongodb:
+  db:
     image: docker.io/library/mongo:8.0-noble
     container_name: insys-mongo-db_cnt
     ports:
-      - "127.0.0.1:27018:27017"
+      - "127.0.0.1:27018:27017" #to prevent port conflicts
     volumes:
-      - ./df/init-mongo.df.js:/docker-entrypoint-initdb.d/init-mongo.js
+      - mongo_data:/data/db
+      - ./df/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
     networks:
       - insys-net
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   app:
     build:
       context: .
-      dockerfile: df/nj_df
-    image: localhost/simple-nodejs:alpha
+      dockerfile: df/nj-dev_df
+    image: insys/simple-nodejs:never
     container_name: insys-nj-app_cnt
     volumes:
       - .:/home/app
     ports:
       - "127.0.0.1:3004:3004"
+    tty: true
+    stdin_open: true
     networks:
       - insys-net
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017/insys
+    depends_on:
+      db:
+        condition: service_healthy
 
 networks:
   insys-net:
     driver: bridge
+
+volumes:
+  mongo_data:
