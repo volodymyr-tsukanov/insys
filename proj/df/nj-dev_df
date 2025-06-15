@@ -4,18 +4,17 @@
 FROM docker.io/alpine:latest
 
 # Stage 1 - Setup
-RUN apk upgrade --update-cache
-RUN apk add nodejs npm
+RUN apk upgrade --update-cache && \
+    apk add nodejs npm
 
 # Stage 2 - Cleanup
-COPY ./df/vt-release /etc/
 RUN mkdir /vtools
-COPY ./df/vtools /vtools
-RUN sed -i 's/\r$//' /vtools/entrypoint.sh & \
+COPY ./df/vt-release /etc/
+COPY ./df/vtools/ /vtools/
+RUN sed -i 's/\r$//' /vtools/entrypoint.sh && \
     sed -i 's/\r$//' /vtools/autoclean.sh
-RUN ash /vtools/autoclean.sh
+RUN /bin/ash /vtools/autoclean.sh
 
-RUN mkdir /home/app
 WORKDIR /home/app
 
 CMD ["/bin/ash", "/vtools/entrypoint.sh"]

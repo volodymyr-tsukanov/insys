@@ -1,5 +1,5 @@
 
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 import {
   IDatasetIntermediate,
   IDatasetResults,
@@ -41,39 +41,37 @@ const datasetResultsSchema = new Schema<IDatasetResults>({
   cultureSpendingShareChange: { type: Map, of: Number, required: true },
 }, { timestamps: true });
 // --- Enriched Year Schema (Final Integration Outputs) ---
-const enrichedYearSchema = new Schema<IEnrichedYear>({
+const enrichedYearSchema = new Schema<IEnrichedYear & Document>({
   year: { type: String, required: true },
-  // Intermediate
-  estimatedCitizens: { type: Number },
-  institutionsPer10kCitizens: { type: Number },
-  touristsPerCitizen: { type: Number },
-  eventTotalParticipants: { type: Number },
-  // Results
-  eventParticipationPerCitizen: { type: Number },
-  costPerEventParticipant: { type: Number },
-  revitalizationCompletionRate: { type: Number },
-  cultureSpendingShareChange: { type: Number },
-  // Holiday stats
+  estimatedCitizens: Number,
+  institutionsPer10kCitizens: Number,
+  touristsPerCitizen: Number,
+  eventTotalParticipants: Number,
+  eventParticipationPerCitizen: Number,
+  costPerEventParticipant: Number,
+  revitalizationCompletionRate: Number,
+  cultureSpendingShareChange: Number,
   holidayCount: { type: Number, required: true },
   holidaysByMonth: { type: Map, of: Number, required: true },
-  weekendCount: { type: Number, required: true },
-  weekendsByMonth: { type: Map, of: Number, required: true },
-  // Derived metrics
-  eventHolidayDensityIndex: { type: Number },
-  eventPerWeekend: { type: Number },
-  touristsPerWeekend: { type: Number },
-  holidayClusteringIndex: { type: Number },
-  institutionToWeekendRatio: { type: Number },
-  costPerWeekendParticipant: { type: Number },
-  // Derived metrics (meaningful)
-  weekendEventDensity: { type: Number },
-  eventHolidayAlignment: { type: Number },
+  weekendCount: Number,
+  weekendsByMonth: { type: Map, of: Number },
+  eventHolidayDensityIndex: Number,
+  eventPerWeekend: Number,
+  touristsPerWeekend: Number,
+  holidayClusteringIndex: Number,
+  institutionToWeekendRatio: Number,
+  costPerWeekendParticipant: Number,
+  weekendEventDensity: Number,
+  eventHolidayAlignment: Number,
 }, { timestamps: true });
 
 // Mongoose Models
-const DatasetIntermediate = mongoose.model<IDatasetIntermediate & Document>('DatasetIntermediate', datasetIntermediateSchema);
-const DatasetResults = mongoose.model<IDatasetResults & Document>('DatasetResults', datasetResultsSchema);
-const EnrichedYear = mongoose.model('EnrichedYear', enrichedYearSchema);
+const DatasetIntermediate = mongoose.models.DatasetIntermediate ||
+  mongoose.model<IDatasetIntermediate & Document>('DatasetIntermediate', datasetIntermediateSchema);
+const DatasetResults = mongoose.models.DatasetResults ||
+  mongoose.model<IDatasetResults & Document>('DatasetResults', datasetResultsSchema);
+const EnrichedYear = mongoose.models.EnrichedYear ||
+  mongoose.model<IEnrichedYear & Document>('EnrichedYear', enrichedYearSchema);
 
 // Exporting Models
 export { DatasetIntermediate, DatasetResults, EnrichedYear };

@@ -5,9 +5,12 @@
 timestamp=$(date +"%d/%m/%Y %H:%M:%S")
 file_setup=".setup.done.tmp"
 cd /home/app
-if [ ! -f $file_setup ]; then
+if [ ! -d node_modules ] || [ ! -f "$file_setup" ]; then
+    echo "[INFO] Installing dependencies..."
     npm install
-    echo "$timestamp" > $file_setup
+    echo "$timestamp" > "$file_setup"
+else
+    echo "[INFO] Dependencies already installed. Skipping npm install."
 fi
 
 npm run dev
