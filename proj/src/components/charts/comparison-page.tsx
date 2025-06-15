@@ -344,7 +344,7 @@ const ComparisonPage: React.FC = () => {
       <div className="w-full flex justify-end gap-2 mt-4">
         <Popover>
           <PopoverTrigger>
-            <Button variant="outline">Export Data</Button>
+            <div role="button" className={`bg-gray rounded cursor-pointer`}>Export Data</div>
           </PopoverTrigger>
           <PopoverContent>
             <div className="flex flex-col gap-2">
