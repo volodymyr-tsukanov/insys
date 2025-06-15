@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:wsp1_2="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://soapsoap.com/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" name="MyFirstWSService" targetNamespace="http://soapsoap.com/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types />
+  <message name="getHelloWorldAsString">
+    <part name="arg0" type="xsd:string" />
+  </message>
+  <message name="getHelloWorldAsStringResponse">
+    <part name="return" type="xsd:string" />
+  </message>
+  <message name="getDaysBetweenDates">
+    <part name="arg0" type="xsd:string" />
+    <part name="arg1" type="xsd:string" />
+  </message>
+  <message name="getDaysBetweenDatesResponse">
+    <part name="return" type="xsd:long" />
+  </message>
+  <portType name="MyFirstSOAPInterface">
+    <operation name="getHelloWorldAsString">
+      <input wsam:Action="http://soapsoap.com/MyFirstSOAPInterface/getHelloWorldAsStringRequest" message="tns:getHelloWorldAsString" />
+      <output wsam:Action="http://soapsoap.com/MyFirstSOAPInterface/getHelloWorldAsStringResponse" message="tns:getHelloWorldAsStringResponse" />
+    </operation>
+    <operation name="getDaysBetweenDates" parameterOrder="arg0 arg1">
+      <input wsam:Action="http://soapsoap.com/MyFirstSOAPInterface/getDaysBetweenDatesRequest" message="tns:getDaysBetweenDates" />
+      <output wsam:Action="http://soapsoap.com/MyFirstSOAPInterface/getDaysBetweenDatesResponse" message="tns:getDaysBetweenDatesResponse" />
+    </operation>
+  </portType>
+  <binding name="MyFirstWSPortBinding" type="tns:MyFirstSOAPInterface">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
+    <operation name="getHelloWorldAsString">
+      <soap:operation soapAction="" />
+      <input>
+        <soap:body use="literal" namespace="http://soapsoap.com/" />
+      </input>
+      <output>
+        <soap:body use="literal" namespace="http://soapsoap.com/" />
+      </output>
+    </operation>
+    <operation name="getDaysBetweenDates">
+      <soap:operation soapAction="" />
+      <input>
+        <soap:body use="literal" namespace="http://soapsoap.com/" />
+      </input>
+      <output>
+        <soap:body use="literal" namespace="http://soapsoap.com/" />
+      </output>
+    </operation>
+  </binding>
+  <service name="MyFirstWSService">
+    <port name="MyFirstWSPort" binding="tns:MyFirstWSPortBinding">
+      <soap:address location="http://localhost:7779/ws/first" />
+    </port>
+  </service>
+</definitions>
