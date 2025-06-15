@@ -5,6 +5,8 @@ Systems integration <br>
 <br><br>
 
 
+![Finished](https://img.shields.io/badge/status-Finished%20%F0%9F%94%9A-3CB371?style=for-the-badge&logo=github)
+
 Shields: [![AGPL-3.0][agpl3-shield]][agpl3]
 
 [agpl3]: https://www.gnu.org/licenses/agpl-3.0.html
